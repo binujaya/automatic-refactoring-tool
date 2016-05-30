@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/binujaya/automatic-refactoring-tool/issues"
   },
-  "homepage": "https://github.com/binujaya/automatic-refactoring-tool#readme"
+  "homepage": "https://github.com/binujaya/automatic-refactoring-tool#readme",
+  "dependencies": {
+    "escodegen": "^1.8.0",
+    "esprima": "^2.7.2",
+    "estraverse": "^4.2.0"
+  }
 }
