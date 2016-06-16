@@ -1,10 +1,10 @@
 var fs = require('fs');
 
+var MethodExtraction = require('./method_extraction/index.js');
+
 var esprima = require('esprima');
 var estraverse = require('estraverse');
 var escodegen = require('escodegen');
-
-app = {};
 
 fs.readFile('./inputFile.js','utf8', function (err,data) {
   if (err) {
@@ -16,13 +16,8 @@ fs.readFile('./inputFile.js','utf8', function (err,data) {
   console.log('\n AST BEFORE REFACTORING: \n');
   console.log(JSON.stringify(ast, null, 4));
 
-  estraverse.traverse(ast, {
-    enter : function (node, parent) {
-      if(node.type=='Identifier' && node.name=='answer'){
-        node.name = 'x';
-      }
-    }
-  });
+  //insert refactoring module here
+  MethodExtraction(ast);
 
   var refactoredCode = escodegen.generate(ast);
 
