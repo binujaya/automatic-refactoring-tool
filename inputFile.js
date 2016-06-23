@@ -6,7 +6,7 @@ var getGrade = function (answer) {
   else if (answer>80){
     result = 'B';
   }
-  else if (answe>60) {
+  else if (answer>60) {
     result = 'C';
   }
   else if (answer>40) {
