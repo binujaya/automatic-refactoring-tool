@@ -3,7 +3,7 @@
 var price=1000.0;
 
 var discount = true;
-printBill=function(){
+var printBill=function(){
     console.log("The total bill is :",amount);
 }
 
