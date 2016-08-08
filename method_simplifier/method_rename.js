@@ -3,34 +3,40 @@ var esprima = require('esprima');
 var estraverse = require('estraverse');
 var escodegen = require('escodegen');
 
-
-var code = 'var answer = 42; var x = 0; if(answer>20)x=10 ; function f1(){alert("test");} function f2(){} f1();';
+var code = 'var answer = 42; var x = 0; if(answer>20)x=10 ; function f1(){alert("test");} function f2(){} f1(); var getData = f2();';
 
 var ast = esprima.parse(code);	
 
-//console.log('\n Befor Refactoring\n');
-//console.log(JSON.stringify(ast, null, 4));
+var methodNames = {};
 
-
+console.log('\n Befor Refactoring\n');
+console.log(JSON.stringify(ast, null, 4));
 
 var n = 1;
 
 function renameMethod(node,num){
-	var pastName, newName;
-	var newMethodName = 'RenameMethod_' + num;
-	pastName = node.id.name;
-	newName = newMethodName;
-	console.log('Method name is too short: ',node.id.name);
+	var pastMethodName, newMethodName;
+	
+	console.log(node.id.name + ' method name is too short.');
+	newMethodName = "RenameMethod_"+ num;
+	pastMethodName = node.id.name;	
 	node.id.name = newMethodName;
-	renameCallee(pastName,newName);
+	console.log(pastMethodName +' rename as ' + node.id.name);
+	renameCallee(pastMethodName,newMethodName);
+	
+	methodNames[newMethodName] = pastMethodName;
+		
 	return node;
 }
 
 function renameCallee(pastName,newName){
 	estraverse.traverse(ast, {
 		enter : function (node, parent) {
-			if(node.type =='ExpressionStatement' && node.expression.type=='CallExpression' && node.expression.callee.name === pastName ){
+			/* if(node.type =='ExpressionStatement' && node.expression.type=='CallExpression' && node.expression.callee.name === pastName ){
 				node.expression.callee.name = newName;
+			} */
+			if(node.type=='CallExpression' && node.callee.type== 'Identifier' && node.callee.name === pastName ){
+				node.callee.name = newName;
 			}
 		}
 	});
@@ -49,3 +55,6 @@ var refactoredCode = escodegen.generate(ast);
 
 console.log('\n After Refactoring\n');
 console.log(refactoredCode); 
+
+console.log('\n New & Past Methods names\n');
+console.log(JSON.stringify(methodNames)); 
