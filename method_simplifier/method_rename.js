@@ -1,13 +1,16 @@
 //nodemon method_rename.js
+//node method_rename.js
 var esprima = require('esprima');
 var estraverse = require('estraverse');
 var escodegen = require('escodegen');
+var jsonfile = require('jsonfile');
 
-var code = 'var answer = 42; var x = 0; if(answer>20)x=10 ; function f1(){alert("test");} function f2(){} f1(); var getData = f2();';
+var code = 'function f1(){alert("test");} function sum(){return 1+2;} function getSumation(){sum();} function f2(){} f1(); var getData = f2();';
 
 var ast = esprima.parse(code);	
 
 var methodNames = {};
+var file = 'data.json';
 
 console.log('\n Befor Refactoring\n');
 console.log(JSON.stringify(ast, null, 4));
@@ -58,3 +61,12 @@ console.log(refactoredCode);
 
 console.log('\n New & Past Methods names\n');
 console.log(JSON.stringify(methodNames)); 
+
+console.log('\nData write to json file');
+jsonfile.writeFile(file, methodNames, {spaces: 2}, function(err) {
+   if (err) {
+       return console.error(err);
+   }
+   console.log("Data written successfully!");
+});
+
