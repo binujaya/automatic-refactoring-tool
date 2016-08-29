@@ -10,12 +10,12 @@ fs.readFile('./input.js','utf8', function (err,data) {
     throw err;
   }
 
-var code = 'if (discount) { amount = price * 0.90; printBill();}';
+//var code = 'if (discount) { amount = price * 0.90; printBill();}';
 console.log(data);
 var ast = esprima.parse(data);
 console.log('\n AST BEFORE REFACTORING: \n');
 console.log(JSON.stringify(ast, null, 4));
-    
+var removedNode;    
 
 estraverse.replace(ast, {
   enter: function enter(node) {
@@ -24,6 +24,7 @@ estraverse.replace(ast, {
       && 'CallExpression' === node.expression.type
       && 'printBill' === node.expression.callee.name
     ) {
+      removedNode=node;
       return this.remove();
     }
   }
@@ -35,6 +36,13 @@ code = escodegen.generate(ast, {
   }
 });
 
+////
+removedNode1=escodegen.generate(removedNode);
+    
+    
+    
+////
 console.log(code);
+console.log("Removed Node is :",removedNode1);
     
 });
