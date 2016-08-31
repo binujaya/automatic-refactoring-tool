@@ -11,10 +11,12 @@ fs.readFile('./input.js','utf8', function (err,data) {
   }
 
 //var code = 'if (discount) { amount = price * 0.90; printBill();}';
+console.log("---------------------------------------------------------------------------");  
+console.log("Before refactoring");    
 console.log(data);
 var ast = esprima.parse(data);
-console.log('\n AST BEFORE REFACTORING: \n');
-console.log(JSON.stringify(ast, null, 4));
+//console.log('\n AST BEFORE REFACTORING: \n');
+//console.log(JSON.stringify(ast, null, 4));
 var removedNode;    
 
 estraverse.replace(ast, {
@@ -24,25 +26,54 @@ estraverse.replace(ast, {
       && 'CallExpression' === node.expression.type
       && 'printBill' === node.expression.callee.name
     ) {
-      removedNode=node;
-      return this.remove();
+      removedNode=node;//Asigning removed Node to a variable
+      return this.remove();//Reomove the node
     }
   }
 });
-
+    
 code = escodegen.generate(ast, {
   format: {
     indent: { style: '  ' }
   }
 });
 
-////
-removedNode1=escodegen.generate(removedNode);
+    
+var bst = esprima.parse(code);
+
+
     
     
+ 
+   
     
-////
-console.log(code);
-console.log("Removed Node is :",removedNode1);
+ estraverse.traverse(bst, {
+        enter: function(node, parent) {
+            if (node.type === 'Program') {
+                addBeforeCode(node);
+            }
+        }
+    });
+
+    
+//Adding removed Node at the end.
+function addBeforeCode(node) {
+   
+    var beforeNodes = removedNode;
+     node.body = node.body.concat(beforeNodes);
+}  
+ 
+    
+    
+code = escodegen.generate(bst, {
+  format: {
+    indent: { style: '  ' }
+  }
+});
+console.log("\n\n");
+console.log("---------------------------------------------------------------------------"); 
+console.log("Refactored code is : ");
+console.log(code);//outputs in the console
+
     
 });
