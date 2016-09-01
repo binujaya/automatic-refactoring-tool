@@ -6,6 +6,7 @@ var printBill = function () {
 if (discount) {
     amount = price * 0.90;
     printBill();
+    printSum();
 } else {
     amount = price;
     printBill();
