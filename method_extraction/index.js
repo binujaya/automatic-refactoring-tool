@@ -20,7 +20,7 @@ var trivialNodes = {
   VariableDeclarator : 'VariableDeclarator'
 }
 
-var isTrivialNode = function (node) { 
+var isTrivialNode = function (node) {
   return Object.keys(trivialNodes).some(function (key) {
     return key==node.type;
   });
@@ -34,10 +34,20 @@ var addDepthToNodes = function (ast) {
       else node.depth = parent.depth + 1;
     }
   });
-  console.log(JSON.stringify(ast, null, 4));    
+}
+
+var printNode = function (ast) {
+  estraverse.traverse(ast, {
+    enter : function (node) {
+      if (node.type=='VariableDeclarator') {
+        console.log(node);
+      }
+    }
+  })
 }
 
 module.exports = {
   testRefactor: testRefactor,
-  addDepthToNodes: addDepthToNodes
+  addDepthToNodes: addDepthToNodes,
+  printNode : printNode
 };
