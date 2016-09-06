@@ -5,7 +5,7 @@ var estraverse = require('estraverse');
 var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 
-var codeString = 'function sumation(x,y,z){var result = x+y} function myFunction(x, y) {return x * y;} ';
+var codeString = 'function sumation(x,y,z){var result = x+y} sumation(2,4,6); function myFunction(x, y) {sumation(x,y,6); return x * y;} ';
 var ast = esprima.parse(codeString);	
 console.log('\n Befor Refactoring\n');
 //console.log(JSON.stringify(ast, null, 4));
@@ -39,6 +39,18 @@ function removeParameter(parentNode, parameterName){
 	});
 }
 
+function editFunctionCallee(functionName, parameterPosision){
+	estraverse.replace(ast, {
+		enter : function (node, parent) {
+			if(parent.type =='CallExpression' && parent.callee.type== 'Identifier' && parent.callee.name === functionName ){
+				if(node == parent.arguments[parameterPosision]){
+					return this.remove();
+				}
+			}
+		}
+	});
+}
+
 estraverse.traverse(ast, {
 	enter : function (node, parent) {
 		if(node.type =='FunctionDeclaration' && node.params.length > 0){
@@ -52,6 +64,7 @@ estraverse.traverse(ast, {
 				
 				if (paraCount == 1){
 					removeParameter(node,para);
+					editFunctionCallee(functionName,i);
 				}
 			}
 			
