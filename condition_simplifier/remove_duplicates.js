@@ -13,7 +13,7 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
         throw err;
     }
 
-    //var code = 'if (discount) { amount = price * 0.90; printBill();}';
+    
     console.log("---------------------------------------------------------------------------");
     console.log("Before refactoring");
     console.log(data);
@@ -22,8 +22,6 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
     console.log(JSON.stringify(ast, null, 4));
     var removedNode = [];
     var nodeToRemove = [];
-    //var nodes = [];
-    //var parentChain = [];
     var ifStatementBodyArray;
     var elseStatementBodyArray;
 
@@ -51,7 +49,6 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
         var functionCallArray = [];
         for (item in array) {
             node = array[item];
-            // console.log("node is",node);
             if (node.type === 'ExpressionStatement' && node.expression.type === 'CallExpression') {
                 functionCallArray.push(node.expression.callee.name); //Push all function calls into array
 
@@ -94,23 +91,7 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
 
 
 
-    //    function checkDuplicateElement(array) { //check for duplicates
-    //        for (var i = 1; i < array.length; i++) {
-    //            if (array[i] !== array[0])
-    //                return false;
-    //        }
-    //        nodeToRemove = array[0];
-    //        return true;
-    //
-    //
-    //
-    //
-    //
-    //
-    //    }
-
-
-    //console.log(nodes);
+    
     for (element in nodeToRemove) {
         estraverse.replace(ast, {
             enter: function enter(node) {
