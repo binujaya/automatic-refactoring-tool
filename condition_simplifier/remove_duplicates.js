@@ -1,5 +1,5 @@
 //Most stable version to find duplicate nodes and remove them
-//shuould handle case when there are if-else-if statements
+
 
 var fs = require('fs');
 
@@ -13,7 +13,7 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
         throw err;
     }
 
-    
+
     console.log("---------------------------------------------------------------------------");
     console.log("Before refactoring");
     console.log(data);
@@ -50,8 +50,8 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
         for (item in array) {
             node = array[item];
             if (node.type === 'ExpressionStatement' && node.expression.type === 'CallExpression') {
-                functionCallArray.push(node.expression.callee.name); //Push all function calls into array
-
+                // functionCallArray.push(node.expression.callee.name); //Push all function calls into array
+                functionCallArray.push(node);
             }
 
 
@@ -63,9 +63,12 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
 
     function searchItem(item, array) { //Compare in both arrays
         for (i in array) {
-            if (array[i] == item) {
+            console.log(array[i]);
+            console.log(item);
+            if (JSON.stringify(array[i]) === JSON.stringify(item)) {
 
-                nodeToRemove.push(item);
+                nodeToRemove.push(item.expression.callee.name);
+                console.log(item.expression.callee.name);
             }
         }
     }
@@ -75,6 +78,7 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
         var ifArray = checkFunctionCallsInArray(ifStatementBodyArray);
         var elseArray = checkFunctionCallsInArray(elseStatementBodyArray);
         for (item in ifArray) {
+
             searchItem(ifArray[item], elseArray);
 
         }
@@ -91,14 +95,14 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
 
 
 
-    
+
     for (element in nodeToRemove) {
         estraverse.replace(ast, {
             enter: function enter(node) {
                 if (
-                    'ExpressionStatement' === node.type && 'CallExpression' === node.expression.type && nodeToRemove[element] === node.expression.callee.name
+                    'ExpressionStatement' === node.type && 'CallExpression' === node.expression.type &&     nodeToRemove[element] === node.expression.callee.name
                 ) {
-                    removedNode.push(node); //Assigning removed Node to a variable
+                    removedNode.push(node); //pushing  removed Node to the array
                     return this.remove(); //Reomove the node
                 }
             }
@@ -148,7 +152,6 @@ fs.readFile('./input.js', 'utf8', function (err, data) {
         });
 
     }
-
 
 
 
