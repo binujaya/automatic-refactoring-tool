@@ -1,7 +1,7 @@
 var fs = require('fs');
 var esprima = require('esprima');
 
-var MethodExtraction = require('./method_extraction/index.js');
+var MethodComposer = require('./method_composer/index.js');
 
 fs.readFile('./inputFile.js','utf8', function (err,data) {
   if (err) {
@@ -14,5 +14,5 @@ fs.readFile('./inputFile.js','utf8', function (err,data) {
 
   //insert refactoring modules here
   //MethodExtraction.testRefactor(ast, 'getGrade');
-  MethodExtraction.addDepthToNodes(ast);
+  MethodComposer.addDepthToNodes(ast);
 });
