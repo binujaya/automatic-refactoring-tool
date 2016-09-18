@@ -1,9 +1,12 @@
 var fs = require('fs');
 var esprima = require('esprima');
+var escodegen = require('escodegen');
 
 var MethodComposer = require('./method_composer/index.js');
 
-fs.readFile('./inputFile.js','utf8', function (err,data) {
+var refactoredCode;
+
+fs.readFile('./inputFile.js', 'utf8', function (err,data) {
   if (err) {
     throw err;
   }
@@ -13,6 +16,15 @@ fs.readFile('./inputFile.js','utf8', function (err,data) {
   // console.log(JSON.stringify(ast , null, 4));
 
   //insert refactoring modules here
-  //MethodExtraction.testRefactor(ast, 'getGrade');
+  MethodComposer.testRefactor(ast, 'getGrade');
   MethodComposer.addDepthToNodes(ast);
+  //MethodComposer.printNode('BlockStatement', ast);
+
+  refactoredCode = escodegen.generate(ast);
+
+  fs.writeFile('./outputFile.js', refactoredCode, function (err) {
+    if (err) {
+      throw err;
+    }
+  });
 });
