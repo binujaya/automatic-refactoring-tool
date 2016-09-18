@@ -36,10 +36,10 @@ var addDepthToNodes = function (ast) {
   });
 }
 
-var printNode = function (ast) {
+var printNode = function (nodeType, ast) {
   estraverse.traverse(ast, {
     enter : function (node) {
-      if (node.type=='VariableDeclarator') {
+      if (node.type==nodeType) {
         console.log(node);
       }
     }
