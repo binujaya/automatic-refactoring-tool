@@ -8,7 +8,7 @@ var ConditionalSimplifier;
 
 var refactoredCode;
 
-fs.readFile('./inputFile.js', 'utf8', function (err,data) {
+fs.readFile('./composer_inputFile.js', 'utf8', function (err,data) {
   if (err) {
     throw err;
   }
