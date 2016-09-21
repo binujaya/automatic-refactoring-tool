@@ -14,13 +14,14 @@ fs.readFile('./inputFile.js', 'utf8', function (err,data) {
   }
 
   var ast = esprima.parse(data);
-  // console.log('\n AST BEFORE REFACTORING: \n');
-  // console.log(JSON.stringify(ast , null, 4));
+  //console.log('\n AST BEFORE REFACTORING: \n');
+  //console.log(JSON.stringify(ast , null, 4));
 
   //insert refactoring modules here
-  MethodComposer.testRefactor(ast, 'getGrade');
-  MethodComposer.addDepthToNodes(ast);
+  MethodComposer.renameMethod(ast, 'myFunc', 'myFunc2');
+  //MethodComposer.addDepthToNodes(ast);
   //MethodComposer.printNode('BlockStatement', ast);
+  //MethodComposer.removeAssignToParam(ast);
 
   refactoredCode = escodegen.generate(ast);
 
