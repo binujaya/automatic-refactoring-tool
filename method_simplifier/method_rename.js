@@ -1,23 +1,21 @@
-//nodemon method_rename.js
-//node method_rename.js
+/* run command 
+	node method_rename.js */
+
+// import libraries
 var esprima = require('esprima');
 var estraverse = require('estraverse');
 var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 
-var code = 'function f1(){alert("test");} function sum(){return 1+2;} function getSumation(){sum();} function f2(){} f1(); var getData = f2();';
-
-var ast = esprima.parse(code);	
-
+// JSON array for keep old & new method's names
 var methodNames = {};
+// JSON file contain methodNames array
 var file = 'data.json';
-
-console.log('\n Befor Refactoring\n');
-console.log(JSON.stringify(ast, null, 4));
 
 var n = 1;
 
-function renameMethod(node,num){
+// rename short method names to generic name
+function renameMethod(node,num,ast){
 	var pastMethodName, newMethodName;
 	
 	console.log(node.id.name + ' method name is too short.');
@@ -25,19 +23,17 @@ function renameMethod(node,num){
 	pastMethodName = node.id.name;	
 	node.id.name = newMethodName;
 	console.log(pastMethodName +' rename as ' + node.id.name);
-	renameCallee(pastMethodName,newMethodName);
+	renameCallee(pastMethodName,newMethodName,ast);
 	
 	methodNames[newMethodName] = pastMethodName;
 		
 	return node;
 }
 
-function renameCallee(pastName,newName){
+// replace old names by new name in callee places
+function renameCallee(pastName,newName,ast){
 	estraverse.traverse(ast, {
 		enter : function (node, parent) {
-			/* if(node.type =='ExpressionStatement' && node.expression.type=='CallExpression' && node.expression.callee.name === pastName ){
-				node.expression.callee.name = newName;
-			} */
 			if(node.type=='CallExpression' && node.callee.type== 'Identifier' && node.callee.name === pastName ){
 				node.callee.name = newName;
 			}
@@ -45,28 +41,29 @@ function renameCallee(pastName,newName){
 	});
 }	
 
-estraverse.traverse(ast, {
-	enter : function (node, parent) {
-		if(node.type =='FunctionDeclaration' && node.id.type=='Identifier' && node.id.name.length <= 3){
-			renameMethod(node,n);
-			n = n + 1;
+// search short name methods
+var searchMethodsName = function(ast){
+	estraverse.traverse(ast, {
+		enter : function (node, parent) {
+			if(node.type =='FunctionDeclaration' && node.id.type=='Identifier' && node.id.name.length <= 3){
+				renameMethod(node,n,ast);
+				n = n + 1;
+			}
 		}
-	}
-});
+	});
+}
 
-var refactoredCode = escodegen.generate(ast);
+// write JSON array to file
+var writeData = function(){
+	jsonfile.writeFile(file, methodNames, {spaces: 2}, function(err) {
+		if (err) {
+			return console.error(err);
+		}
+		console.log("Data written successfully!");
+	});
+}
 
-console.log('\n After Refactoring\n');
-console.log(refactoredCode); 
-
-console.log('\n New & Past Methods names\n');
-console.log(JSON.stringify(methodNames)); 
-
-console.log('\nData write to json file');
-jsonfile.writeFile(file, methodNames, {spaces: 2}, function(err) {
-   if (err) {
-       return console.error(err);
-   }
-   console.log("Data written successfully!");
-});
-
+module.exports = {
+  searchMethodsName: searchMethodsName,
+  writeData : writeData
+};
