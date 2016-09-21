@@ -1,20 +1,14 @@
-//node removeParameter.js
+/* run command
+	node removeParameter.js */
 
+// import libraries
 var esprima = require('esprima');
 var estraverse = require('estraverse');
 var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 
-var codeString = 'function sumation(x,y,z){var result = x+y} sumation(2,4,6); function myFunction(x, y) {sumation(x,y,6); return x * y;} ';
-var ast = esprima.parse(codeString);	
-console.log('\n Befor Refactoring\n');
-//console.log(JSON.stringify(ast, null, 4));
-var code = escodegen.generate(ast);
-console.log(code + "\n"); 
-
-
-
-function isContainedInMethodBody(parentNode, parameterName){
+// check whether parameter is contain in method booy
+function isContainedInMethodBody(parentNode, parameterName,ast){
 	var  count = 0;
 	estraverse.traverse(ast, {
 		leave : function (node,parent) {
@@ -27,7 +21,8 @@ function isContainedInMethodBody(parentNode, parameterName){
 	return count;
 }
 
-function removeParameter(parentNode, parameterName){
+// remove parameter from parameter list
+function removeParameter(parentNode, parameterName,ast){
 	estraverse.replace(ast, {
 		enter: function (node,parent){
 			if ( parentNode === parent ){
@@ -39,7 +34,8 @@ function removeParameter(parentNode, parameterName){
 	});
 }
 
-function editFunctionCallee(functionName, parameterPosision){
+// modify method callee palces
+function editFunctionCallee(functionName, parameterPosision,ast){
 	estraverse.replace(ast, {
 		enter : function (node, parent) {
 			if(parent.type =='CallExpression' && parent.callee.type== 'Identifier' && parent.callee.name === functionName ){
@@ -51,29 +47,34 @@ function editFunctionCallee(functionName, parameterPosision){
 	});
 }
 
-estraverse.traverse(ast, {
-	enter : function (node, parent) {
-		if(node.type =='FunctionDeclaration' && node.params.length > 0){
-			var functionName = node.id.name;
-			console.log(JSON.stringify(node.id.name)); 
-			for (var i=0; i<node.params.length; i++){
-				var para = node.params[i].name;
-				console.log(JSON.stringify(para));
-				var paraCount = isContainedInMethodBody(node,para);
-				console.log("Count :" + JSON.stringify(paraCount));
+// search unused parameters
+var searchRemoveParameter = function(ast){
+	estraverse.traverse(ast, {
+		enter : function (node, parent) {
+			if(node.type =='FunctionDeclaration' && node.params.length > 0){
+				var functionName = node.id.name;
+				console.log(JSON.stringify(node.id.name)); 
+				for (var i=0; i<node.params.length; i++){
+					var para = node.params[i].name;
+					console.log(JSON.stringify(para));
+					var paraCount = isContainedInMethodBody(node,para,ast);
+					console.log("Count :" + JSON.stringify(paraCount));
 				
-				if (paraCount == 1){
-					removeParameter(node,para);
-					editFunctionCallee(functionName,i);
+					if (paraCount == 1){
+						removeParameter(node,para,ast);
+						editFunctionCallee(functionName,i,ast);
+					}
 				}
-			}
 			
+			}
 		}
-	}
-});
+	});
+}
 
-var refactoredCode = escodegen.generate(ast);
-console.log('\n After Refactoring\n');
-console.log(refactoredCode); 
-
-
+module.exports = {
+  searchRemoveParameter: searchRemoveParameter,
+  editFunctionCallee : editFunctionCallee,
+  removeParameter: removeParameter,
+  isContainedInMethodBody: isContainedInMethodBody
+  
+};
