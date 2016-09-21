@@ -8,6 +8,12 @@ var nodeToRemove = [];
 var ifStatementBodyArray;
 var elseStatementBodyArray;
 
+/*
+Input array
+Check whether function calls are prsent 
+Put those ast function call nodes into functioncallarray
+Returns functionCallArray
+*/
 var checkFunctionCallsInArray = function (array) {
 
     var functionCallArray = [];
@@ -25,6 +31,11 @@ var checkFunctionCallsInArray = function (array) {
     return functionCallArray;
 }
 
+/*
+Input item,array
+search for duplicate items
+Put them in nodeToRemove array
+*/
 var searchItem = function (item, array) { //Compare in both arrays
     for (i in array) {
         //console.log(array[i]);
@@ -102,14 +113,14 @@ var removeDuplicates = function (ast) {
             }
         });
     }
-
-    code = escodegen.generate(ast, {
-        format: {
-            indent: {
-                style: '  '
-            }
-        }
-    });
+    code = escodegen.generate(ast);
+//    code = escodegen.generate(ast, {
+//        format: {
+//            indent: {
+//                style: '  '
+//            }
+//        }
+//    });
 
 
 

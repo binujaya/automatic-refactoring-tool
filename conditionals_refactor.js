@@ -5,11 +5,11 @@ var estraverse = require('estraverse');
 
 var ConditionalSimplifier = require('./condition_simplifier/remove_duplicates.js');
 
-fs.readFile('./condition_simplifier/input.js', 'utf8', function (err, data) {
+fs.readFile('./input/input.js', 'utf8', function (err, data) {
     if (err) {
         throw err;
     }
-
+//    var data = "var discount = true;var amount;if(discount){amount = price *  0.9;printBill();}else{amount=price;printBill();}";
     console.log("---------------------------------------------------------------------------");
     console.log("Before refactoring");
     console.log(data);
@@ -19,16 +19,16 @@ fs.readFile('./condition_simplifier/input.js', 'utf8', function (err, data) {
     
     var bst = ConditionalSimplifier.removeDuplicates(ast);
 
-    code = escodegen.generate(bst, {
-        format: {
-            indent: {
-                style: '  '
-            }
-        }
-    });
+    code = escodegen.generate(bst);
     console.log("\n\n");
     console.log("---------------------------------------------------------------------------");
     console.log("Refactored code is : ");
     console.log(code); //outputs in the console
+    
+    fs.writeFile('./input/outFile.js', code, function (err) {
+    if (err) {
+      throw err;
+    }
+   });
 
 });
