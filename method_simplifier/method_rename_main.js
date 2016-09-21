@@ -1,4 +1,4 @@
-/* run command 
+/* run command
 	node method_rename_main.js */
 
 // import libraries
@@ -14,7 +14,7 @@ var MethodSimplifier = require('./method_rename.js');
 var refactoredCode;
 
 // read input file
-fs.readFile('../input/input_rename_1.js', 'utf8', function (err,data) {
+fs.readFile('./input/input_rename_1.js', 'utf8', function (err,data) {
   if (err) {
     throw err;
   }

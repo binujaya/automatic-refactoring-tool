@@ -8,7 +8,7 @@ var ConditionalSimplifier;
 
 var refactoredCode;
 
-fs.readFile('./composer_inputFile.js', 'utf8', function (err,data) {
+fs.readFile('./input/composer_inputFile.js', 'utf8', function (err,data) {
   if (err) {
     throw err;
   }
@@ -18,10 +18,12 @@ fs.readFile('./composer_inputFile.js', 'utf8', function (err,data) {
   //console.log(JSON.stringify(ast , null, 4));
 
   //insert refactoring modules here
-  MethodComposer.renameMethod(ast, 'myFunc', 'myFunc2');
-  //MethodComposer.addDepthToNodes(ast);
+  //MethodComposer.renameMethod(ast, 'myFunc', 'myFunc2');
+  MethodComposer.addDepthToNodes(ast);
   //MethodComposer.printNode('BlockStatement', ast);
   //MethodComposer.removeAssignToParam(ast);
+
+  console.log(JSON.stringify(ast, null, 4));
 
   refactoredCode = escodegen.generate(ast);
 
