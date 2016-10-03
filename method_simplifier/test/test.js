@@ -16,13 +16,13 @@ describe('isContainedInMethodBody', function() {
   })
 })
 
-describe('removeParameter', function() {
-	var flag = false;
-  beforeEach(function() {
-    ast = esprima.parse(sampleCode1);
-    flag = removeParameter.removeParameter(ast.body,"sumation",ast);
-  })
-  it('should return true', function() {
-    expect (flag).to.equal(true);
-  })
-})
+// describe('removeParameter', function() {
+// 	var flag = false;
+//   beforeEach(function() {
+//     ast = esprima.parse(sampleCode1);
+//     flag = removeParameter.removeParameter(ast.body,"sumation",ast);
+//   })
+//   it('should return true', function() {
+//     expect (flag).to.equal(true);
+//   })
+// })

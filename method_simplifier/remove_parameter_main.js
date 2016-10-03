@@ -1,4 +1,4 @@
-/* run command 
+/* run command
 	node remove_parameter_main.js */
 
 // import libraries
@@ -13,7 +13,7 @@ var MethodSimplifier = require('./removeParameter.js');
 var refactoredCode;
 
 // read input file
-fs.readFile('../input/input_removeParameter_2.js', 'utf8', function (err,data) {
+fs.readFile('./input/input_removeParameter_1.js', 'utf8', function (err,data) {
   if (err) {
     throw err;
   }
@@ -21,7 +21,7 @@ fs.readFile('../input/input_removeParameter_2.js', 'utf8', function (err,data) {
   var ast = esprima.parse(data);
 
   MethodSimplifier.searchRemoveParameter(ast);
-  
+
   //generate the refactored code
   refactoredCode = escodegen.generate(ast);
 
