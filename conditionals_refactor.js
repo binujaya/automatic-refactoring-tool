@@ -14,8 +14,8 @@ fs.readFile('./input/input.js', 'utf8', function (err, data) {
     console.log("Before refactoring");
     console.log(data);
     var ast = esprima.parse(data);
-    //console.log('\n AST BEFORE REFACTORING: \n');
-    //console.log(JSON.stringify(ast, null, 4));
+    console.log('\n AST BEFORE REFACTORING: \n');
+    console.log(JSON.stringify(ast, null, 4));
     
     var bst = ConditionalSimplifier.removeDuplicates(ast);
 

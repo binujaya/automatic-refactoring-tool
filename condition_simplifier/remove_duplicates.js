@@ -42,8 +42,8 @@ var searchItem = function (item, array) { //Compare in both arrays
         //console.log(item);
         if (JSON.stringify(array[i]) === JSON.stringify(item)) {
 
-            nodeToRemove.push(item.expression.callee.name);
-            //console.log(item.expression.callee.name);
+            //nodeToRemove.push(item.expression.callee.name);
+            nodeToRemove.push(item);
         }
     }
 }
@@ -105,7 +105,7 @@ var removeDuplicates = function (ast) {
         estraverse.replace(ast, {
             enter: function enter(node) {
                 if (
-                    'ExpressionStatement' === node.type && 'CallExpression' === node.expression.type && nodeToRemove[element] === node.expression.callee.name
+                    'ExpressionStatement' === node.type && 'CallExpression' === node.expression.type && JSON.stringify(nodeToRemove[element]) ===JSON.stringify(node)
                 ) {
                     removedNode.push(node); //pushing  removed Node to the array
                     return this.remove(); //Reomove the node
@@ -114,13 +114,7 @@ var removeDuplicates = function (ast) {
         });
     }
     code = escodegen.generate(ast);
-//    code = escodegen.generate(ast, {
-//        format: {
-//            indent: {
-//                style: '  '
-//            }
-//        }
-//    });
+
 
 
 
