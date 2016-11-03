@@ -5,6 +5,7 @@ var estraverse = require('estraverse');
 
 var removedNode = [];
 var nodeToRemove = [];
+var ifArray = []; //new
 var ifStatementBodyArray;
 var elseStatementBodyArray;
 
@@ -21,6 +22,7 @@ var checkFunctionCallsInArray = function (array) {
         node = array[item];
         if (node.type === 'ExpressionStatement' && node.expression.type === 'CallExpression') {
             // functionCallArray.push(node.expression.callee.name); //Push all function calls into array
+            //console.log("fuction calls", node.expression.callee.name);
             functionCallArray.push(node);
         }
 
@@ -76,6 +78,94 @@ var checkDuplicateElement = function (array) { //check for duplicates aim is to 
     return duplicateRemovedArray;
 }
 
+var ifTraversal = function (array) {
+    var bodyArray;
+    var functionCalls;
+    var previousFunctionCalls;
+    var newPreviousFunctionCalls = [];
+    for (i in array) {
+        var node = array[i];
+
+        //console.log("node is",node);
+        //consequent=== if statement
+        //alternate.consequent === else if statements
+        //alternate=== else statement
+        var k = 0;
+        while (node !== undefined) {
+
+            if (node.consequent !== undefined) {
+                bodyArray = node.consequent.body;
+
+            } else {
+                bodyArray = node.body;
+            }
+            //previousFunctionCalls = functionCalls;
+            functionCalls = checkFunctionCallsInArray(bodyArray);
+
+            // e welwe thiyana function calls tika me array eke                                                                            thiynwa
+            // console.log("previousFunctionCalls",previousFunctionCalls);
+            //console.log("functionCalls",functionCalls);
+            if (functionCalls !== undefined) {
+
+
+                for (item in functionCalls) {
+                    //console.log("looping", functionCalls[item].expression.callee.name);
+                    //                    if(item === 0){
+                    //                        newPreviousFunctionCalls=functionCalls;
+                    //                    }
+
+                    for (i in previousFunctionCalls) {
+
+                        // console.log(functionCalls[i]);
+                        // console.log(item);
+                        if (JSON.stringify(functionCalls[item]) === JSON.stringify(previousFunctionCalls[i])) {
+                            // console.log("loop entered");
+                            // console.log("inside new loop", functionCalls[item].expression.callee.name);
+                            newPreviousFunctionCalls.push(functionCalls[item]);
+
+
+                        }
+                    }
+
+
+                }
+
+                //console.log("new array",newPreviousFunctionCalls);
+                if (k == 0) {
+                    previousFunctionCalls = functionCalls;
+                } else {
+
+                    previousFunctionCalls = newPreviousFunctionCalls;
+                }
+                newPreviousFunctionCalls = [];
+
+            }
+            //functionCalls = newPreviousFunctionCalls;
+
+            node = node.alternate;
+            k++;
+            //two arrays previouse and new
+            // if only it ocuurs in previus it will go into new
+
+        }
+        if (previousFunctionCalls.length > 0) {
+            for (l in previousFunctionCalls) {
+                console.log(previousFunctionCalls[l]);
+                //nodeToRemove.push(previousFunctionCalls[l]);
+            }
+        }
+
+
+
+    }
+
+
+
+
+
+};
+
+
 var removeDuplicates = function (ast) {
 
 
@@ -84,12 +174,45 @@ var removeDuplicates = function (ast) {
         enter: function enter(node, parent) {
 
 
-            if (node.type === "IfStatement") { //Find conditional statements
-
+            //            if (node.type === "IfStatement") { //Find conditional statements
+            //                console.log("parent ",parent.type);
+            //                console.log("consequent",node.consequent.body);
+            //                console.log("alternate",node.alternate.body);
+            //                
+            //                ifStatementBodyArray = node.consequent.body;
+            //                elseStatementBodyArray = node.alternate.body;
+            //                
+            //
+            //            }
+            if (node.type === "IfStatement" && parent.type === "Program" && node.alternate.body !== undefined) {
                 ifStatementBodyArray = node.consequent.body;
                 elseStatementBodyArray = node.alternate.body;
 
+            } else if (node.type === "IfStatement" && parent.type === "Program") {
 
+
+                //check function calls in body array
+                //Go upaward until meet node.type === "IfStatement" && parent.type === "Program"
+                //check all have same function name
+                //if remove that nodes and insert at once after if statement
+
+                //console.log(node);
+                ifArray.push(node);
+                //ifTraversal(ifArray);
+
+                //                        var array = node.alternate.body;
+                //                        for (item in array) {
+                //                            node = array[item];
+                //                            if (node.type === 'ExpressionStatement' && node.expression.type === 'CallExpression') {
+                //                                // functionCallArray.push(node.expression.callee.name); //Push all function calls into array
+                //                                console.log("function calls detected", node);
+                //                                
+                //                                //functionCallArray.push(node);
+                //                                
+                //                                
+                //                            }
+                //
+                //                        }
             }
 
         }
@@ -100,12 +223,13 @@ var removeDuplicates = function (ast) {
     });
 
     checkElements();
+    ifTraversal(ifArray); //newly added
 
     for (element in nodeToRemove) {
         estraverse.replace(ast, {
             enter: function enter(node) {
                 if (
-                    'ExpressionStatement' === node.type && 'CallExpression' === node.expression.type && JSON.stringify(nodeToRemove[element]) ===JSON.stringify(node)
+                    'ExpressionStatement' === node.type && 'CallExpression' === node.expression.type && JSON.stringify(nodeToRemove[element]) === JSON.stringify(node)
                 ) {
                     removedNode.push(node); //pushing  removed Node to the array
                     return this.remove(); //Reomove the node
@@ -126,7 +250,8 @@ var removeDuplicates = function (ast) {
 
 
     for (element in duplicateRemovedArray) {
-
+        //
+        console.log(duplicateRemovedArray[element]);
 
         estraverse.traverse(bst, {
             enter: function (node, parent) {

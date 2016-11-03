@@ -4,15 +4,26 @@ var amount;
 var printBill = function (amount) {
     console.log('The total amount is : ', amount);
 };
-function printMessage() {
-    console.log('Thank you come again');
-}
 if (discount) {
     amount = price * 0.9;
+} else if (amount > 1000) {
+    printSum(amount);
+} else if (amount < 0) {
+    printMass();
 } else {
     amount = price;
-    console.log('cde');
+    printMessage();
+}
+if (price) {
+} else if (price > 0) {
+    printRusiru(amount);
+} else {
 }
 printBill(amount);
-console.log('abc');
-printMessage();
+printBill(amount);
+printBill(amount);
+printBill(amount);
+printBill(amount);
+printBill(amount);
+console.log(amount);
+console.log(amount);
