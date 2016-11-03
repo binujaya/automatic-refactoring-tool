@@ -15,15 +15,12 @@ if (discount) {
     printMessage();
 }
 if (price) {
+    console.log(amount);
 } else if (price > 0) {
+    console.log(amount);
     printRusiru(amount);
 } else {
+    console.log('amount', amount);
 }
 printBill(amount);
 printBill(amount);
-printBill(amount);
-printBill(amount);
-printBill(amount);
-printBill(amount);
-console.log(amount);
-console.log(amount);

@@ -34,5 +34,5 @@ if (price) {
     printBill(amount);
 } else {
     printBill(amount);
-    console.log(amount);
+    console.log("amount",amount);
 }
