@@ -9,7 +9,6 @@ var printMessage = function () {
 };
 if (discount) {
     amount = price * 0.9;
-    printSum();
 } else {
     amount = price;
 }
