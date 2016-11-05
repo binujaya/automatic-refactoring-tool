@@ -2,8 +2,12 @@ var estraverse = require('estraverse');
 
 var scopeChain = {
   chain: [],
+  currentBlock: null,
   push: function(node) {
     this.chain.push(node);
+    if (node.type=='BlockStatement') {
+      this.currentBlock=node.body;
+    }
   },
   pop: function() {
     this.chain.pop();
@@ -26,16 +30,35 @@ var nameGenerator = {
   }
 };
 
-var renameMethod = function(ast, methodName, newName) {
+var varGenerator = function (varName) {
+  return JSON.parse(`{
+      "type": "VariableDeclaration",
+      "declarations": [
+          {
+              "type": "VariableDeclarator",
+              "id": {
+                  "type": "Identifier",
+                  "name": "${varName}"
+              },
+              "init": null
+          }
+      ],
+      "kind": "var"
+  }`);
+};
+
+var renameOccurence = function(ast, varName, newName) {
   estraverse.traverse(ast, {
     enter: function(node, parent) {
-      if (node.type == 'FunctionExpression' && parent.type == 'VariableDeclarator' && parent.id.name == methodName) {
-        parent.id.name = newName;
+      if (node.name==varName) {
+        node.name=newName;
       }
     }
   });
 };
+
 var printNode = function(nodeType, ast) {
+
   estraverse.traverse(ast, {
     enter: function(node) {
       if (node.type == nodeType) {
@@ -82,10 +105,15 @@ var removeAssignToParam = function(ast) {
       }
       if (funcParams.length != 0) {
         if (node.type == 'AssignmentExpression' && funcParams.indexOf(node.left.name)!=-1) {
-          // TODO: rename future occurences
-          console.log('node left:',node.left);
-          console.log('node:',node.type);
-          console.log('parent:',parent.type);
+          var oldName = node.left.name;
+          var newName = nameGenerator.genericName('comp');
+          var newVar = varGenerator(newName);
+          var parentIndex = scopeChain.currentBlock.indexOf(parent);
+          scopeChain.currentBlock.splice(parentIndex,0,newVar);
+          var newVarIndex = parentIndex;
+          for (var i = newVarIndex+1; i<scopeChain.currentBlock.length; i++) {
+            renameOccurence(scopeChain.currentBlock[i],oldName,newName);
+          }
         }
       }
     },
@@ -101,7 +129,7 @@ var removeAssignToParam = function(ast) {
 
 
 module.exports = {
-  renameMethod: renameMethod,
+  renameOccurence: renameOccurence,
   addDepthToNodes: addDepthToNodes,
   printNode: printNode,
   removeAssignToParam: removeAssignToParam
