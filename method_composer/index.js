@@ -123,15 +123,15 @@ var removeAssignToParam = function(ast) {
       if (funcParams.length != 0) {
         var paramInAssignment = (node.type == 'AssignmentExpression' && funcParams.indexOf(node.left.name)!=-1);
         var paramInUpdate = (node.type =='UpdateExpression' && funcParams.indexOf(node.argument.name)!=-1);
-        // TODO: setup for all loops
-        var loopNode = scopeChain.find('ForStatement');
+        var loopNode = scopeChain.find('ForStatement') || scopeChain.find('WhileStatement') || scopeChain.find('ForInStatement') || scopeChain.find('ForOfStatement') || scopeChain.find('DoWhileStatement');
+        var oldName, newName, newVar, parentIndex, newVarIndex;
         if (loopNode===undefined && (paramInAssignment || paramInUpdate)) {
-          var oldName = node.left ? node.left.name : node.argument.name;
-          var newName = nameGenerator.genericName('comp');
-          var newVar = varGenerator(newName, oldName);
-          var parentIndex = scopeChain.getCurrentBlock().indexOf(parent);
+          oldName = node.left ? node.left.name : node.argument.name;
+          newName = nameGenerator.genericName('comp');
+          newVar = varGenerator(newName, oldName);
+          parentIndex = scopeChain.getCurrentBlock().indexOf(parent);
           scopeChain.getCurrentBlock().splice(parentIndex,0,newVar);
-          var newVarIndex = parentIndex;
+          newVarIndex = parentIndex;
           for (var i = newVarIndex+1; i<scopeChain.getCurrentBlock().length; i++) {
             renameOccurence(scopeChain.getCurrentBlock()[i],oldName,newName);
           }
@@ -139,12 +139,12 @@ var removeAssignToParam = function(ast) {
 
         if (loopNode && (paramInAssignment || paramInUpdate)) {
           // TODO: add newVar to above for loop using previous BlockStatement tracking (pop)
-          var oldName = node.left ? node.left.name : node.argument.name;
-          var newName = nameGenerator.genericName('comp');
-          var newVar = varGenerator(newName, oldName);
-          var parentIndex = scopeChain.getParentBlock().indexOf(loopNode);
+          oldName = node.left ? node.left.name : node.argument.name;
+          newName = nameGenerator.genericName('comp');
+          newVar = varGenerator(newName, oldName);
+          parentIndex = scopeChain.getParentBlock().indexOf(loopNode);
           scopeChain.getParentBlock().splice(parentIndex,0,newVar);
-          var newVarIndex = parentIndex;
+          newVarIndex = parentIndex;
           for (var i = newVarIndex+1; i<scopeChain.getParentBlock().length; i++) {
             renameOccurence(scopeChain.getParentBlock()[i],oldName,newName);
           }
