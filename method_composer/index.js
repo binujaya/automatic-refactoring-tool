@@ -2,15 +2,29 @@ var estraverse = require('estraverse');
 
 var scopeChain = {
   chain: [],
-  currentBlock: null,
+  blocks: [],
   push: function(node) {
     this.chain.push(node);
     if (node.type=='BlockStatement') {
-      this.currentBlock=node.body;
+      this.blocks.push(node);
     }
   },
   pop: function() {
-    this.chain.pop();
+    var node = this.chain.pop();
+    if (node.type=='BlockStatement') {
+      this.blocks.pop();
+    }
+  },
+  find: function (nodeType) {
+    return this.chain.find(function (node) {
+      return node.type==nodeType;
+    });
+  },
+  getCurrentBlock: function () {
+    return this.blocks[this.blocks.length-1].body;
+  },
+  getParentBlock: function () {
+    return this.blocks[this.blocks.length-2].body
   },
   print: function() {
     console.log(this.chain.map(node => node.type).join(' => '));
@@ -30,7 +44,7 @@ var nameGenerator = {
   }
 };
 
-var varGenerator = function (varName) {
+var varGenerator = function (varName, value) {
   return JSON.parse(`{
       "type": "VariableDeclaration",
       "declarations": [
@@ -40,7 +54,10 @@ var varGenerator = function (varName) {
                   "type": "Identifier",
                   "name": "${varName}"
               },
-              "init": null
+              "init": {
+                  "type": "Identifier",
+                  "name": "${value}"
+              }
           }
       ],
       "kind": "var"
@@ -104,15 +121,32 @@ var removeAssignToParam = function(ast) {
         paramCount.push(count);
       }
       if (funcParams.length != 0) {
-        if (node.type == 'AssignmentExpression' && funcParams.indexOf(node.left.name)!=-1) {
-          var oldName = node.left.name;
+        var paramInAssignment = (node.type == 'AssignmentExpression' && funcParams.indexOf(node.left.name)!=-1);
+        var paramInUpdate = (node.type =='UpdateExpression' && funcParams.indexOf(node.argument.name)!=-1);
+        // TODO: setup for all loops
+        var loopNode = scopeChain.find('ForStatement');
+        if (loopNode===undefined && (paramInAssignment || paramInUpdate)) {
+          var oldName = node.left ? node.left.name : node.argument.name;
           var newName = nameGenerator.genericName('comp');
-          var newVar = varGenerator(newName);
-          var parentIndex = scopeChain.currentBlock.indexOf(parent);
-          scopeChain.currentBlock.splice(parentIndex,0,newVar);
+          var newVar = varGenerator(newName, oldName);
+          var parentIndex = scopeChain.getCurrentBlock().indexOf(parent);
+          scopeChain.getCurrentBlock().splice(parentIndex,0,newVar);
           var newVarIndex = parentIndex;
-          for (var i = newVarIndex+1; i<scopeChain.currentBlock.length; i++) {
-            renameOccurence(scopeChain.currentBlock[i],oldName,newName);
+          for (var i = newVarIndex+1; i<scopeChain.getCurrentBlock().length; i++) {
+            renameOccurence(scopeChain.getCurrentBlock()[i],oldName,newName);
+          }
+        }
+
+        if (loopNode && (paramInAssignment || paramInUpdate)) {
+          // TODO: add newVar to above for loop using previous BlockStatement tracking (pop)
+          var oldName = node.left ? node.left.name : node.argument.name;
+          var newName = nameGenerator.genericName('comp');
+          var newVar = varGenerator(newName, oldName);
+          var parentIndex = scopeChain.getParentBlock().indexOf(loopNode);
+          scopeChain.getParentBlock().splice(parentIndex,0,newVar);
+          var newVarIndex = parentIndex;
+          for (var i = newVarIndex+1; i<scopeChain.getParentBlock().length; i++) {
+            renameOccurence(scopeChain.getParentBlock()[i],oldName,newName);
           }
         }
       }
