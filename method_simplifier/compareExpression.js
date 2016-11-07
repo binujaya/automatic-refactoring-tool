@@ -2,8 +2,8 @@
 
 var jsdiff = require('diff');
  
-//var one = 'salary = fsalary * 4;';
-//var other = 'salary = salary * 2;';
+//var comparator = 'salary = salary * 4;';
+//var comparison = 'salary = salary * 2;';
  
 var commonPart = [];
 var addPart = [];
@@ -42,11 +42,11 @@ var compare = function() {
 	var flag = false;
 	if (commonPart.length >= 2){
 		if (addPart.length == 1 && removePart.length == 1){
-			flag = true;
+			flag = validate();
 		}
 	} 
 	setArrayEmpty();
-	//console.log("Able to parameterize: "+flag);
+	console.log("Able to parameterize: "+flag);
 	return flag;
 }
 
@@ -56,7 +56,24 @@ var setArrayEmpty = function() {
 	removePart.length = 0;
 }
 
-//checkDifference('salary = salary * 4;', 'salary = salary * 2;');
+var validate = function() {
+	var isValid = false;
+	
+	if(addPart[0].match(/^\d+$/) && removePart[0].match(/^\d+$/)){
+		isValid = true;
+	}else if(addPart[0].match(/^\d+\.\d+$/) && removePart[0].match(/^\d+\.\d+$/)){
+		isValid = true;
+	}else if(addPart[0].match(/^\d+$/) && removePart[0].match(/^\d+\.\d+$/)){
+		isValid = true;
+	} else if(addPart[0].match(/^\d+\.\d+$/) && removePart[0].match(/^\d+$/)){
+		isValid = true;
+	}else{
+		isValid = false;
+	} 
+	return isValid;
+}
+
+//checkDifference(comparator,comparison);
 //print();
 //compare();
 
@@ -64,5 +81,6 @@ module.exports = {
   checkDifference: checkDifference,
   print : print,
   compare: compare,
-  setArrayEmpty: setArrayEmpty
+  setArrayEmpty: setArrayEmpty,
+  validate: validate
 };
