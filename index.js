@@ -21,7 +21,8 @@ fs.readFile('./method_composer/inputFile.js', 'utf8', function (err,data) {
   //MethodComposer.renameMethod(ast, 'myFunc', 'myFunc2');
   //MethodComposer.addDepthToNodes(ast);
   //MethodComposer.printNode('BlockStatement', ast);
-  MethodComposer.removeAssignToParam(ast);
+  // MethodComposer.removeAssignToParam(ast);
+  MethodComposer.addInlineMethods(ast);
 
   //console.log(JSON.stringify(ast, null, 4));
 

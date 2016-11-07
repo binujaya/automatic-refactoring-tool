@@ -97,10 +97,57 @@ var removeAssignToParam = function(ast) {
   });
 };
 
+var replaceCalleeWithMethodBody = function (ast, calleeName, methodBody) {
+  estraverse.replace(ast, {
+    enter: function (node, parent) {
+      if (node.type=='CallExpression' && node.callee.name==calleeName) {
+        return methodBody;
+      }
+    }
+  });
+};
+
+var deleteMethodDefinition = function (ast, methodName) {
+  estraverse.replace(ast, {
+    enter: function (node, parent) {
+      if (node.type=='VariableDeclaration' && node.declarations[0].init.type=='FunctionExpression' && node.declarations[0].id.name==methodName) {
+        this.remove();
+      }
+    }
+  });
+};
+
+var isMethodDefinitionOf = function (methodName) {
+  return function (node) {
+    if (node.type=='VariableDeclaration' && node.declarations[0].init.type=='FunctionExpression' && node.declarations[0].id.name==methodName) {
+      return true;
+    }
+  };
+};
+
+
+var addInlineMethods = function (ast) {
+  estraverse.traverse(ast, {
+    enter: function (node, parent) {
+      scopeChain.push(node);
+      if (node.type=='FunctionExpression' && node.body.body.length==1) {
+        var methodBody = node.body.body[0].argument;
+        var methodName = parent.id.name;
+        replaceCalleeWithMethodBody(ast, methodName, methodBody);
+        var methodDefinition = scopeChain.chain.filter(isMethodDefinitionOf(methodName)).pop();
+        // deleteMethodDefinition(ast, methodName);
+      }
+    },
+    leave: function (node, parent) {
+      scopeChain.pop();
+    }
+  });
+};
 
 
 module.exports = {
   renameOccurence: renameOccurence,
   addDepthToNodes: addDepthToNodes,
-  removeAssignToParam: removeAssignToParam
+  removeAssignToParam: removeAssignToParam,
+  addInlineMethods: addInlineMethods
 };
