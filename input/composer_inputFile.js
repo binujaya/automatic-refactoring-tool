@@ -4,4 +4,3 @@ var myFunc = function(x, y) {
   z++;
   return z;
 }
-var z = myFunc(40, 50);
