@@ -1,4 +1,4 @@
-//node paramerterizedMethod.js
+// Run Command - node paramerterizedMethod.js
 
 var esprima = require('esprima');
 var estraverse = require('estraverse');
@@ -6,13 +6,16 @@ var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 var compareExpression = require('./compareExpression.js');
 
+/* Test Script - before 
+
 var codeString = 'var salary = 10000; function fivePresentAdd(){ salary = salary + 5;}  function test(a){alert();} function fivePresentRise(){ salary *= 5;} function tenPresentAdd(){ salary = salary + 10;} function tenPresentRise(){ salary *= 10;} fivePresentRise(); tenPresentAdd();';
 var ast = esprima.parse(codeString);
 console.log('\n Befor Refactoring\n');
-//console.log(JSON.stringify(ast, null, 4));
+console.log(JSON.stringify(ast, null, 4));
 var code = escodegen.generate(ast);
-console.log(code + "\n");
-
+console.log(code + "\n");  
+ */
+ 
 var n = 1;
 var nodes = []; 
 
@@ -20,12 +23,15 @@ var trivialNodes = {
   ExpressionStatement : 'ExpressionStatement',
 }
 
+// checked if the node is trivial node
 var isTrivialNode = function (node) {
   return Object.keys(trivialNodes).some(function (key) {
     return key==node.type;
   });
 }
 
+/* identify methods that contain trivial node  and 
+			push their names to nodes array   */
 var identifyTrivialNodes = function (ast,parentNode){
 	var succ_count = 0;
 	var unsucc_count = 0;
@@ -44,11 +50,14 @@ var identifyTrivialNodes = function (ast,parentNode){
 	});
 }
 
+// remove specific elements from nodes array
 var remove = function(value){
 	var idx = nodes.indexOf(value);
 	nodes.splice(idx, 1); 
 }
 
+/* match methods for identiy duplicates and 
+		check whether their are suitable for parameterize   */
 var matchDuplicatemethods = function (ast){
 	while(nodes.length > 1){
 		for(var key in nodes) {
@@ -72,6 +81,7 @@ var matchDuplicatemethods = function (ast){
 	
 }
 
+// parameterize duplicate methods
 var methodParameterizer = function(ast,comparatorName, comparisonName){
 	var comparatorNode = getNode(ast, comparatorName);
 	var comparisonNode = getNode(ast, comparisonName); 
@@ -102,6 +112,7 @@ var methodParameterizer = function(ast,comparatorName, comparisonName){
 	
 }
 
+// return node body of given function
 var getNodeBody = function(ast, nodeName){
 	var tempnode;
 	estraverse.traverse(ast, {
@@ -114,12 +125,14 @@ var getNodeBody = function(ast, nodeName){
 	return tempnode;
 }
 
+// generate code of given node object
 var generateCode = function (nodeObject){
 	
 	var code = escodegen.generate(nodeObject,{format:{newline: '', semicolons: false}});
 	return code;
 }
 
+// return node for given function
 var getNode = function(ast, nodeName){
 	var tempnode, assignment;
 	estraverse.traverse(ast, {
@@ -132,6 +145,7 @@ var getNode = function(ast, nodeName){
 	return tempnode;
 }
 
+// create new paramerterized method for assignment operator
 var createNewMethod1 = function(comparatorNode,newName){
 	var temp = comparatorNode;
 	temp.id.name = newName;
@@ -145,6 +159,7 @@ var createNewMethod1 = function(comparatorNode,newName){
 	return temp;
 }
 
+// create new paramerterized method for equal operator
 var createNewMethod2 = function(comparatorNode,newName){
 	var temp = comparatorNode;
 	temp.id.name = newName;
@@ -158,6 +173,7 @@ var createNewMethod2 = function(comparatorNode,newName){
 	return temp;
 }
 
+// remove methods by giving name 
 var removeMethoods = function(ast, name){
 	estraverse.replace(ast, {
 		enter: function (node,parent){
@@ -168,6 +184,7 @@ var removeMethoods = function(ast, name){
 	});
 }
 
+// edit function callee places to new function name
 var editFunctionCallee = function(ast,pastName,argValue,newName){
 	estraverse.replace(ast, {
 		enter : function (node, parent) {
@@ -180,6 +197,7 @@ var editFunctionCallee = function(ast,pastName,argValue,newName){
 	});
 }
 
+// start search
 var searchParameterizeMethods = function(){
 	estraverse.traverse(ast, {
 		enter : function (node, parent) {
@@ -190,10 +208,28 @@ var searchParameterizeMethods = function(){
 	});
 }
 
+/* Test Script - After refactoring
+
 searchParameterizeMethods();
 matchDuplicatemethods(ast);
 
 console.log('\n After Refactoring\n');
-//console.log(JSON.stringify(ast, null, 4));
+console.log(JSON.stringify(ast, null, 4));
 var refactoredCode = escodegen.generate(ast);
-console.log(refactoredCode);
+console.log(refactoredCode); */
+
+module.exports = {
+  searchParameterizeMethods: searchParameterizeMethods,
+  identifyTrivialNodes : identifyTrivialNodes,
+  isTrivialNode : isTrivialNode,
+  remove : remove,
+  matchDuplicatemethods : matchDuplicatemethods,
+  methodParameterizer :  methodParameterizer,
+  getNodeBody : getNodeBody,
+  generateCode : generateCode,
+  getNode : getNode,
+  createNewMethod1 : createNewMethod1,
+  createNewMethod2 : createNewMethod2,
+  removeMethoods : removeMethoods,
+  editFunctionCallee : editFunctionCallee
+};
