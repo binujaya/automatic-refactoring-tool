@@ -6,7 +6,7 @@ var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 var compareExpression = require('./compareExpression.js');
 
-var codeString = 'var salary = 10000; function fivePresentRise(){ salary = salary + (salary * 4);} function tenPresentRise(){ salary = salary + (salary * 2);}';
+var codeString = 'var salary = 10000; function fivePresentRise(){ salary = salary + 4;} function tenPresentRise(){ salary = salary + 2;}';
 var ast = esprima.parse(codeString);
 //console.log('\n Befor Refactoring\n');
 //console.log(JSON.stringify(ast, null, 4));
@@ -51,14 +51,15 @@ var remove = function(value){
 var matchDuplicatemethods = function (ast){
 	while(nodes.length > 1){
 		for(var key in nodes) {
-			var comparatorCode = generateCode(getNode(ast, nodes[key]));	
+			var comparatorCode = generateCode(getNodeBody(ast, nodes[key]));	
 			for (var currentKey in nodes){
 				if(currentKey != key){
-					var comparisonCode = generateCode(getNode(ast, nodes[currentKey]));
+					var comparisonCode = generateCode(getNodeBody(ast, nodes[currentKey]));
 					compareExpression.checkDifference(comparatorCode,comparisonCode);
 					var ableToParameterize = compareExpression.compare();
 
 					if (ableToParameterize){
+						methodParameterizer(ast,nodes[key],nodes[currentKey]);
 						remove(nodes[key]);
 						remove(nodes[currentKey]);
 						break;
@@ -71,7 +72,69 @@ var matchDuplicatemethods = function (ast){
 	
 }
 
+var methodParameterizer = function(ast,comparatorName, comparisonName){
+	var comparatorNode = getNode(ast, comparatorName);
+	var comparisonNode = getNode(ast, comparisonName); 
+	var newName = "parameterizeMethod";
+	
+	/*console.log(JSON.stringify(comparatorNode,null, 4));
+	console.log(JSON.stringify(getNode(ast,"parameterizeMethod1"),null, 4));*/
+	
+	var assignment = comparatorNode.body.body[0].expression.operator;
+	var comparatorValue, comparisonvalue;
+	
+	if(assignment == '+=' | assignment == '-=' | assignment == '*=' | assignment == '/=' | assignment == '%='){
+		comparatorValue = comparatorNode.body.body[0].expression.right.value;
+		comparisonvalue = comparisonNode.body.body[0].expression.right.value;
+		comparatorNode = createNewMethod1(comparatorNode,newName);
+	}
+	else if(assignment == '='){
+		comparatorValue = comparatorNode.body.body[0].expression.right.right.value;
+		comparisonvalue = comparisonNode.body.body[0].expression.right.right.value;
+		comparatorNode = createNewMethod2(comparatorNode,newName);
+	}
+	
+}
+
 var getNode = function(ast, nodeName){
+	var tempnode, assignment;
+	estraverse.traverse(ast, {
+		enter : function (node, parent) {
+			if(node.type =='FunctionDeclaration' && node.id.type =='Identifier' && node.id.name == nodeName){
+				tempnode = node;
+			}		
+		}
+	});
+	return tempnode;
+}
+
+var createNewMethod1 = function(comparatorNode,newName){
+	var temp = comparatorNode;
+	temp.id.name = newName;
+	var parameter = {"type": "Identifier","name": "new_parameter"}
+	temp.params.push(parameter)
+	
+	var rightNode = {type: "Identifier", name: "new_parameter"};
+	temp.body.body[0].expression.right = rightNode;
+	
+	//console.log(JSON.stringify(temp, null, 4));
+	return temp;
+}
+
+var createNewMethod2 = function(comparatorNode,newName){
+	var temp = comparatorNode;
+	temp.id.name = newName;
+	var parameter = {"type": "Identifier","name": "new_parameter"}
+	temp.params.push(parameter)
+	
+	var rightNode = {type: "Identifier", name: "new_parameter"};
+	temp.body.body[0].expression.right.right = rightNode;
+	
+	//console.log(JSON.stringify(temp, null, 4));
+	return temp;
+}
+
+var getNodeBody = function(ast, nodeName){
 	var tempnode;
 	estraverse.traverse(ast, {
 		enter : function (node, parent) {
@@ -99,11 +162,7 @@ estraverse.traverse(ast, {
 
 matchDuplicatemethods(ast);
 
-/*for(var key in nodes) {
-	console.log("key: " + key);
-	var code = escodegen.generate(nodes[key].body.body);
-	console.log(JSON.stringify(code));	
-}*/
-
-//console.log('\n After Refactoring\n');
+console.log('\n After Refactoring\n');
 //console.log(JSON.stringify(ast, null, 4));
+var refactoredCode = escodegen.generate(ast);
+console.log(refactoredCode);
