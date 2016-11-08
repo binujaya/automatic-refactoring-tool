@@ -117,6 +117,7 @@ var deleteMethodDefinition = function (ast, methodName) {
   });
 };
 
+// NOTE: This is not used. May be used when selecting method definitions from scope chain
 var isMethodDefinitionOf = function (methodName) {
   return function (node) {
     if (node.type=='VariableDeclaration' && node.declarations[0].init.type=='FunctionExpression' && node.declarations[0].id.name==methodName) {
@@ -134,8 +135,8 @@ var addInlineMethods = function (ast) {
         var methodBody = node.body.body[0].argument;
         var methodName = parent.id.name;
         replaceCalleeWithMethodBody(ast, methodName, methodBody);
-        var methodDefinition = scopeChain.chain.filter(isMethodDefinitionOf(methodName)).pop();
-        // deleteMethodDefinition(ast, methodName);
+        // var methodDefinition = scopeChain.chain.filter(isMethodDefinitionOf(methodName)).pop();
+        deleteMethodDefinition(ast, methodName);
       }
     },
     leave: function (node, parent) {
