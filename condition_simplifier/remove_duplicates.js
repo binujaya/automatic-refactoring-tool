@@ -24,6 +24,7 @@ var checkFunctionCallsInArray = function (array) {
         if (node.type === 'ExpressionStatement' && node.expression.type === 'CallExpression') {
             // functionCallArray.push(node.expression.callee.name); //Push all function calls into array
             //console.log("fuction calls", node.expression.callee.name);
+
             functionCallArray.push(node);
         }
 
@@ -85,7 +86,9 @@ var ifTraversal = function (array) {
     var previousFunctionCalls;
     var newPreviousFunctionCalls = [];
     for (i in array) {
-        var node = array[i];
+        var node = array[i].value;
+        var key = array[i].key;
+        console.log("node is", key);
         var k = 0;
         while (node !== undefined) {
 
@@ -135,9 +138,12 @@ var ifTraversal = function (array) {
         }
         if (previousFunctionCalls.length > 0) {
             for (l in previousFunctionCalls) {
-                // console.log(previousFunctionCalls[l]);
+                var object = {
+                    key: key,
+                    value: previousFunctionCalls[l]
+                };
                 nodeToRemove.push(previousFunctionCalls[l]);
-                duplicateRemovedArray.push(previousFunctionCalls[l]);
+                duplicateRemovedArray.push(object);
             }
         }
 
@@ -167,7 +173,13 @@ var removeDuplicates = function (ast) {
                 //Go upaward until meet node.type === "IfStatement" && parent.type === "Program"
                 //check all have same function name
                 //if remove that nodes and insert at once after if statement
-                ifArray.push(node);
+                console.log("index is", (parent.body).indexOf(node));
+                //ifArray.push(node);
+                var object = {
+                    key: (parent.body).indexOf(node),
+                    value: node
+                };
+                ifArray.push(object);
 
             }
 
@@ -179,10 +191,11 @@ var removeDuplicates = function (ast) {
 
     for (element in nodeToRemove) {
         estraverse.replace(ast, {
-            enter: function enter(node) {
+            enter: function enter(node, parent) {
                 if (
-                    'ExpressionStatement' === node.type && 'CallExpression' === node.expression.type && JSON.stringify(nodeToRemove[element]) === JSON.stringify(node)
-                ) {
+                    'ExpressionStatement' === node.type && 'CallExpression' === node.expression.type && (JSON.stringify(nodeToRemove[element]) === JSON.stringify(node)) && parent.type !== 'Program') {
+
+
                     //removedNode.push(node); //pushing  removed Node to the array
                     return this.remove(); //Reomove the node
                 }
@@ -192,16 +205,30 @@ var removeDuplicates = function (ast) {
     code = escodegen.generate(ast);
 
     var bst = esprima.parse(code);
-
-    for (element in duplicateRemovedArray) {
-        estraverse.traverse(bst, {
+    //var item = ifArray[element];
+    //console.log("length of array", ifArray.length);
+    var insertNode = function (ast, position, element) {
+        estraverse.traverse(ast, {
             enter: function (node, parent) {
-                if (node.type === 'Program') {
-                    var beforeNodes = duplicateRemovedArray[element];
-                    node.body = node.body.concat(beforeNodes);
+                if (node.type === "Program") {
+                    // console.log(item.key+1);
+                    //console.log(item.value);
+                    //var index = (parent.body).indexOf(node);
+
+                    //parent.body.splice(index + 1, 0, duplicateRemovedArray.shift());
+                    // parent.body.splice(position + 1, 0, element);
+                    console.log("position is", position);
+                    node.body.splice(position, 0, element);
+                    //eka traversal ekak liyala eken remove karala apahu danna one..
+
                 }
             }
         });
+    };
+    for (element in duplicateRemovedArray) {
+        var position = element * 1 + (duplicateRemovedArray[element].key) * 1 + 1;
+        console.log("position is", position);
+        insertNode(bst, position, duplicateRemovedArray[element].value);
 
     }
     return bst;
