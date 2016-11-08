@@ -5,12 +5,16 @@ var amount;
 var printBill = function (amount) {
     console.log("The total amount is : ", amount);
 }
-
+ 
+var printSum=function(amount){
+    console.log("The sum is",price+amount);
+}
 
 
 if (discount) {
     amount = price * 0.90;
     printBill(amount);
+    printSum(amount);
 
 } else if (amount > 1000) {
     printBill(amount);
@@ -18,13 +22,15 @@ if (discount) {
 } else if (amount < 0) {
     printMass();
     printBill(amount);
+    printSum(amount);
 } else {
     amount = price;
     printMessage();
     printBill(amount);
+    printSum(amount);
 
 }
-
+console.log("In the middle of body");
 if (price) {
     console.log(amount);
     printBill(amount);
@@ -34,5 +40,12 @@ if (price) {
     printBill(amount);
 } else {
     printBill(amount);
-    console.log("amount",amount);
+    console.log(amount);
+}
+if(amount >1000){
+    printHash();
+    printBill(amount);//have to handle e if eke witharak thiye nm handle karanna..
+} 
+else{
+   printHash(); 
 }
