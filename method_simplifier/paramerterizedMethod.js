@@ -6,12 +6,13 @@ var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 var compareExpression = require('./compareExpression.js');
 
-var codeString = 'var salary = 10000; function fivePresentAdd(){ salary = salary + 5;} function fivePresentRise(){ salary *= 5;} function tenPresentAdd(){ salary = salary + 10;} function tenPresentRise(){ salary *= 10;}';
+var codeString = 'var salary = 10000; function fivePresentAdd(){ salary = salary + 5;}  function test(a){alert();} function fivePresentRise(){ salary *= 5;} function tenPresentAdd(){ salary = salary + 10;} function tenPresentRise(){ salary *= 10;} fivePresentRise(); tenPresentAdd();';
 var ast = esprima.parse(codeString);
-//console.log('\n Befor Refactoring\n');
+console.log('\n Befor Refactoring\n');
 //console.log(JSON.stringify(ast, null, 4));
 var code = escodegen.generate(ast);
-//console.log(code + "\n");
+console.log(code + "\n");
+
 var n = 1;
 var nodes = []; 
 
@@ -86,13 +87,37 @@ var methodParameterizer = function(ast,comparatorName, comparisonName){
 		comparatorValue = comparatorNode.body.body[0].expression.right.value;
 		comparisonvalue = comparisonNode.body.body[0].expression.right.value;
 		comparatorNode = createNewMethod1(comparatorNode,newName);
+		editFunctionCallee(ast,comparatorName,comparatorValue,newName);
+		editFunctionCallee(ast,comparisonName,comparisonvalue,newName);
+		removeMethoods(ast,comparisonName);
 	}
 	else if(assignment == '='){
 		comparatorValue = comparatorNode.body.body[0].expression.right.right.value;
 		comparisonvalue = comparisonNode.body.body[0].expression.right.right.value;
 		comparatorNode = createNewMethod2(comparatorNode,newName);
+		editFunctionCallee(ast,comparatorName,comparatorValue,newName);
+		editFunctionCallee(ast,comparisonName,comparisonvalue,newName);
+		removeMethoods(ast,comparisonName);
 	}
 	
+}
+
+var getNodeBody = function(ast, nodeName){
+	var tempnode;
+	estraverse.traverse(ast, {
+		enter : function (node, parent) {
+			if(node.type =='FunctionDeclaration' && node.id.type =='Identifier' && node.id.name == nodeName){
+				tempnode = node.body; 
+			}		
+		}
+	});
+	return tempnode;
+}
+
+var generateCode = function (nodeObject){
+	
+	var code = escodegen.generate(nodeObject,{format:{newline: '', semicolons: false}});
+	return code;
 }
 
 var getNode = function(ast, nodeName){
@@ -133,32 +158,39 @@ var createNewMethod2 = function(comparatorNode,newName){
 	return temp;
 }
 
-var getNodeBody = function(ast, nodeName){
-	var tempnode;
+var removeMethoods = function(ast, name){
+	estraverse.replace(ast, {
+		enter: function (node,parent){
+			if(node.type =='FunctionDeclaration' && node.id.type =='Identifier' && node.id.name == name){
+				return this.remove();
+			}
+		}
+	});
+}
+
+var editFunctionCallee = function(ast,pastName,argValue,newName){
+	estraverse.replace(ast, {
+		enter : function (node, parent) {
+			if(parent.type =='CallExpression' && parent.callee.type== 'Identifier' && parent.callee.name === pastName ){
+				parent.callee.name = newName;
+				var argument = {type: "Literal", value: argValue, raw: argValue}
+				parent.arguments.push(argument);
+			}
+		}
+	});
+}
+
+var searchParameterizeMethods = function(){
 	estraverse.traverse(ast, {
 		enter : function (node, parent) {
-			if(node.type =='FunctionDeclaration' && node.id.type =='Identifier' && node.id.name == nodeName){
-				tempnode = node.body; 
+			if(node.type =='FunctionDeclaration' && node.id.type =='Identifier' && node.params.length == 0){
+				identifyTrivialNodes(ast,node);	
 			}		
 		}
 	});
-	return tempnode;
 }
 
-var generateCode = function (nodeObject){
-	
-	var code = escodegen.generate(nodeObject,{format:{newline: '', semicolons: false}});
-	return code;
-}
-
-estraverse.traverse(ast, {
-	enter : function (node, parent) {
-		if(node.type =='FunctionDeclaration' && node.id.type =='Identifier' ){
-			identifyTrivialNodes(ast,node);	
-		}		
-	}
-});
-
+searchParameterizeMethods();
 matchDuplicatemethods(ast);
 
 console.log('\n After Refactoring\n');
