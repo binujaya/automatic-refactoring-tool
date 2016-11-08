@@ -6,13 +6,13 @@ var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 var compareExpression = require('./compareExpression.js');
 
-var codeString = 'var salary = 10000; function fivePresentRise(){ salary = salary + 4;} function tenPresentRise(){ salary = salary + 2;}';
+var codeString = 'var salary = 10000; function fivePresentAdd(){ salary = salary + 5;} function fivePresentRise(){ salary *= 5;} function tenPresentAdd(){ salary = salary + 10;} function tenPresentRise(){ salary *= 10;}';
 var ast = esprima.parse(codeString);
 //console.log('\n Befor Refactoring\n');
 //console.log(JSON.stringify(ast, null, 4));
 var code = escodegen.generate(ast);
 //console.log(code + "\n");
-
+var n = 1;
 var nodes = []; 
 
 var trivialNodes = {
@@ -61,10 +61,9 @@ var matchDuplicatemethods = function (ast){
 					if (ableToParameterize){
 						methodParameterizer(ast,nodes[key],nodes[currentKey]);
 						remove(nodes[key]);
-						remove(nodes[currentKey]);
+						remove(nodes[currentKey -1]);
 						break;
 					}
-					remove(nodes[key]);
 				}
 			}
 		}
@@ -75,7 +74,7 @@ var matchDuplicatemethods = function (ast){
 var methodParameterizer = function(ast,comparatorName, comparisonName){
 	var comparatorNode = getNode(ast, comparatorName);
 	var comparisonNode = getNode(ast, comparisonName); 
-	var newName = "parameterizeMethod";
+	var newName = "parameterizeMethod_" + n++;
 	
 	/*console.log(JSON.stringify(comparatorNode,null, 4));
 	console.log(JSON.stringify(getNode(ast,"parameterizeMethod1"),null, 4));*/
