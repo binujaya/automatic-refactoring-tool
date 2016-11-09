@@ -7,12 +7,13 @@ var estraverse = require('estraverse');
 var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 
-var codeString = 'var a = 10000; function fivePresentAdd(a){ a = a + 5;}  function test(a){alert();}';
+/* Test Script 
+var codeString = 'var a = 10000; (function (a) {alert();})(); function test(b){alert();} var testFun = function(b){alert();}';
 var ast = esprima.parse(codeString);
 console.log('\n Befor Refactoring\n');
 //console.log(JSON.stringify(ast, null, 4));
 var code = escodegen.generate(ast);
-console.log(code + "\n"); 
+console.log(code + "\n");  */
 
 // check whether parameter is contain in method booy
 function isContainedInMethodBody(parentNode, parameterName,ast){
@@ -56,9 +57,7 @@ function editFunctionCallee(functionName, parameterPosision,ast){
 var searchRemoveParameter = function(ast){
 	estraverse.traverse(ast, {
 		enter : function (node, parent) {
-			if(node.type =='FunctionDeclaration' && node.params.length > 0){
-				var functionName = node.id.name;
-				console.log(JSON.stringify(node.id.name)); 
+			if((node.type =='FunctionDeclaration' || node.type == 'FunctionExpression') && node.params.length > 0){
 				for (var i=0; i<node.params.length; i++){
 					var para = node.params[i].name;
 					console.log(JSON.stringify(para));
@@ -67,6 +66,11 @@ var searchRemoveParameter = function(ast){
 				
 					if (paraCount == 1){
 						removeParameter(node,para,ast);
+					}
+					// ignore anonymous functions
+					if (node.id != null){
+						var functionName = node.id.name;
+						console.log(JSON.stringify(node.id.name)); 
 						editFunctionCallee(functionName,i,ast);
 					}
 				}
@@ -76,11 +80,12 @@ var searchRemoveParameter = function(ast){
 	});
 }
 
+/* Test Script 
 searchRemoveParameter(ast);
 console.log('\n After Refactoring\n');
 //console.log(JSON.stringify(ast, null, 4));
 var refactoredCode = escodegen.generate(ast);
-console.log(refactoredCode); 
+console.log(refactoredCode); */
 
 module.exports = {
   searchRemoveParameter: searchRemoveParameter,
