@@ -7,11 +7,18 @@ var estraverse = require('estraverse');
 var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 
+var codeString = 'var a = 10000; function fivePresentAdd(a){ a = a + 5;}  function test(a){alert();}';
+var ast = esprima.parse(codeString);
+console.log('\n Befor Refactoring\n');
+//console.log(JSON.stringify(ast, null, 4));
+var code = escodegen.generate(ast);
+console.log(code + "\n"); 
+
 // check whether parameter is contain in method booy
 function isContainedInMethodBody(parentNode, parameterName,ast){
 	var  count = 0;
-	estraverse.traverse(ast, {
-		leave : function (node,parent) {
+	estraverse.traverse(parentNode, {
+		enter : function (node,parent) {
 			if(node.type =='Identifier' && node.name == parameterName){
 				count++;
 			}	
@@ -23,12 +30,10 @@ function isContainedInMethodBody(parentNode, parameterName,ast){
 
 // remove parameter from parameter list
 function removeParameter(parentNode, parameterName,ast){
-	estraverse.replace(ast, {
+	estraverse.replace(parentNode, {
 		enter: function (node,parent){
-			if ( parentNode === parent ){
-				if('Identifier' === node.type  && parameterName === node.name){
-					return this.remove();
-				}
+			if('Identifier' === node.type  && parameterName === node.name){
+				return this.remove();
 			}	
 		}
 	});
@@ -70,6 +75,12 @@ var searchRemoveParameter = function(ast){
 		}
 	});
 }
+
+searchRemoveParameter(ast);
+console.log('\n After Refactoring\n');
+//console.log(JSON.stringify(ast, null, 4));
+var refactoredCode = escodegen.generate(ast);
+console.log(refactoredCode); 
 
 module.exports = {
   searchRemoveParameter: searchRemoveParameter,
