@@ -7,11 +7,19 @@ var estraverse = require('estraverse');
 var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 
+/* Test Script 
+var codeString = 'var a = 10000; (function (a) {alert();})(); function test(b){alert();} var testFun = function(b){alert();}';
+var ast = esprima.parse(codeString);
+console.log('\n Befor Refactoring\n');
+//console.log(JSON.stringify(ast, null, 4));
+var code = escodegen.generate(ast);
+console.log(code + "\n");  */
+
 // check whether parameter is contain in method booy
 function isContainedInMethodBody(parentNode, parameterName,ast){
 	var  count = 0;
-	estraverse.traverse(ast, {
-		leave : function (node,parent) {
+	estraverse.traverse(parentNode, {
+		enter : function (node,parent) {
 			if(node.type =='Identifier' && node.name == parameterName){
 				count++;
 			}	
@@ -23,12 +31,10 @@ function isContainedInMethodBody(parentNode, parameterName,ast){
 
 // remove parameter from parameter list
 function removeParameter(parentNode, parameterName,ast){
-	estraverse.replace(ast, {
+	estraverse.replace(parentNode, {
 		enter: function (node,parent){
-			if ( parentNode === parent ){
-				if('Identifier' === node.type  && parameterName === node.name){
-					return this.remove();
-				}
+			if('Identifier' === node.type  && parameterName === node.name){
+				return this.remove();
 			}	
 		}
 	});
@@ -51,9 +57,7 @@ function editFunctionCallee(functionName, parameterPosision,ast){
 var searchRemoveParameter = function(ast){
 	estraverse.traverse(ast, {
 		enter : function (node, parent) {
-			if(node.type =='FunctionDeclaration' && node.params.length > 0){
-				var functionName = node.id.name;
-				console.log(JSON.stringify(node.id.name)); 
+			if((node.type =='FunctionDeclaration' || node.type == 'FunctionExpression') && node.params.length > 0){
 				for (var i=0; i<node.params.length; i++){
 					var para = node.params[i].name;
 					console.log(JSON.stringify(para));
@@ -62,6 +66,11 @@ var searchRemoveParameter = function(ast){
 				
 					if (paraCount == 1){
 						removeParameter(node,para,ast);
+					}
+					// ignore anonymous functions
+					if (node.id != null){
+						var functionName = node.id.name;
+						console.log(JSON.stringify(node.id.name)); 
 						editFunctionCallee(functionName,i,ast);
 					}
 				}
@@ -70,6 +79,13 @@ var searchRemoveParameter = function(ast){
 		}
 	});
 }
+
+/* Test Script 
+searchRemoveParameter(ast);
+console.log('\n After Refactoring\n');
+//console.log(JSON.stringify(ast, null, 4));
+var refactoredCode = escodegen.generate(ast);
+console.log(refactoredCode); */
 
 module.exports = {
   searchRemoveParameter: searchRemoveParameter,

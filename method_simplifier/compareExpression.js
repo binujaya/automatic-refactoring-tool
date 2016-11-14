@@ -46,7 +46,7 @@ var compare = function() {
 		}
 	} 
 	setArrayEmpty();
-	console.log("Able to parameterize: "+flag);
+	//console.log("Able to parameterize: "+flag);
 	return flag;
 }
 
