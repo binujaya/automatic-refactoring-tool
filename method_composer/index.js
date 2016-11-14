@@ -30,9 +30,19 @@ var isTrivialNode = function(node) {
 var addDepthToNodes = function(ast) {
   estraverse.traverse(ast, {
     enter: function(node, parent) {
-      if (!parent) node.depth = 0;
-      else if (isTrivialNode(node)) node.depth = parent.depth;
-      else node.depth = parent.depth + 1;
+      if (!parent) node.depthLevel = 0;
+      else if (isTrivialNode(node)) node.depthLevel = parent.depthLevel;
+      else node.depthLevel = parent.depthLevel + 1;
+    },
+    leave: function (node, parent) {
+      if (node.maxSubTreeDepth===undefined) {
+        node.maxSubTreeDepth = 0;
+      }
+      else {
+        if (parent.maxSubTreeDepth < node.maxSubTreeDepth+1) {
+          parent.maxSubTreeDepth = node.maxSubTreeDepth+1;
+        }
+      }
     }
   });
 };
@@ -146,9 +156,31 @@ var addInlineMethods = function (ast) {
 };
 
 
+var extractVariables = function (ast) {
+  estraverse.traverse(ast, {
+    enter: function (node, parent) {
+      scopeChain.push(node);
+      if (scopeChain.find('IfStatement') && node.type=='LogicalExpression') {
+        console.log(node);
+        function (node) {
+          if (node.left.left) {
+
+          }
+        };
+      }
+    },
+    leave: function (node, parent) {
+      scopeChain.pop();
+    }
+  });
+};
+
+
+
 module.exports = {
   renameOccurence: renameOccurence,
   addDepthToNodes: addDepthToNodes,
   removeAssignToParam: removeAssignToParam,
-  addInlineMethods: addInlineMethods
+  addInlineMethods: addInlineMethods,
+  extractVariables: extractVariables
 };
