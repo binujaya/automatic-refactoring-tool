@@ -1,4 +1,5 @@
 //fixes requiredversion1
+//me widyata karanna pulwan ekakda kiyala balanna thiynwa
 var escodegen = require('escodegen');
 var esprima = require('esprima');
 var estraverse = require('estraverse');
@@ -43,6 +44,24 @@ var find_node_index = function (statement, array) {
 
 };
 
+var check_for_nested_if = function (node) {
+    if (node.alternate !== null && node.alternate !== undefined) {
+        if (found_if_in_array(node.alternate.body)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+var isInsideFunction = function () {
+    if (scopeChain.getGrandParentNode() !== undefined && scopeChain.getGrandParentNode().type === "FunctionExpression") {
+        return true;
+    }
+    return false;
+
+
+}
+
 var replace_nested_conditionals = function (ast) {
     estraverse.traverse(ast, {
         enter: function enter(node, parent) {
@@ -50,16 +69,17 @@ var replace_nested_conditionals = function (ast) {
 
             scopeChain.push(node);
 
-            if (node.type === "IfStatement" ) {
+            if (node.type === "IfStatement" && check_for_nested_if(node) && (isInsideFunction())) {
                 nodes = replace_helper(node);
                 var index = find_indexOfArray(parent.body, node);
-                parent.body.splice(index,1);
+                parent.body.splice(index, 1); //remove current node
                 for (var k = 0; k < nodes.length; k++) {
-                    parent.body.splice(index+k,0,nodes[k]);
+                    parent.body.splice(index + k, 0, nodes[k]);
                 }
             }
         },
-        leave: function (node, parent) {     
+        leave: function (node, parent) {
+            scopeChain.pop();
         }
 
 
@@ -67,25 +87,25 @@ var replace_nested_conditionals = function (ast) {
     return ast;
 };
 
-var remove_node=function(ast,element){
-     estraverse.replace(ast, {
+var remove_node = function (ast, element) {
+    estraverse.replace(ast, {
 
         enter: function enter(node, parent) {
-            if (JSON.stringify(element)===JSON.stringify(node)){
+            if (JSON.stringify(element) === JSON.stringify(node)) {
                 return this.remove();
-                
-              }
+
+            }
 
 
         },
-        
+
 
 
     });
     return ast;
-    
-    
-    
+
+
+
 }
 
 var find_indexOfArray = function (array, node) {
@@ -94,9 +114,10 @@ var find_indexOfArray = function (array, node) {
 
 var create_separate_if = function (node) {
     if (node.type === "IfStatement") {
-        if (node.test !== undefined && node.consequent.body[0].expression !== undefined) {
+        var position = find_node_index("ExpressionStatement", node.consequent.body);
+        if (node.test !== undefined && node.consequent.body[position].expression !== undefined) {
             var test = JSON.stringify(node.test);
-            var argument = JSON.stringify(node.consequent.body[0].expression.right); //should be changed to find if node exactly when there are mutiple nodes
+            var argument = JSON.stringify(node.consequent.body[position].expression.right); //should be changed to find if node exactly when there are mutiple nodes
             return JSON.parse(`{
      "type": "IfStatement",
      "test": ${test},
@@ -114,10 +135,10 @@ var create_separate_if = function (node) {
         }
     } else if (node.type === "BlockStatement") {
 
+        var position = find_node_index("ExpressionStatement", node.body);
 
-
-        if (node.body[0].expression !== undefined) {
-            var argument = JSON.stringify(node.body[0].expression.right);
+        if (node.body[position].expression !== undefined) {
+            var argument = JSON.stringify(node.body[position].expression.right);
             return JSON.parse(`{
      "type": "ReturnStatement",
      "argument": ${argument} ,
