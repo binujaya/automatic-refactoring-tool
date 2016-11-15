@@ -4,7 +4,7 @@ var escodegen = require('escodegen');
 var esprima = require('esprima');
 var estraverse = require('estraverse');
 var fs = require('fs');
-var scopeChain = require('../method_composer/scopeChain.js').scopeChain;
+var scopeChain = require('./scopeChain.js').scopeChain;
 
 
 var found_if_in_array = function (array) {
@@ -68,6 +68,12 @@ var replace_nested_conditionals = function (ast) {
             var nodes;
 
             scopeChain.push(node);
+            if(node.type === "ReturnStatement" && isInsideFunction()){//delete the existing return statement of a function
+            var index = find_indexOfArray(parent.body, node);
+            parent.body.splice(index, 1);    
+                
+                
+            }
 
             if (node.type === "IfStatement" && check_for_nested_if(node) && (isInsideFunction())) {
                 nodes = replace_helper(node);
@@ -77,6 +83,7 @@ var replace_nested_conditionals = function (ast) {
                     parent.body.splice(index + k, 0, nodes[k]);
                 }
             }
+            
         },
         leave: function (node, parent) {
             scopeChain.pop();
@@ -117,7 +124,7 @@ var create_separate_if = function (node) {
         var position = find_node_index("ExpressionStatement", node.consequent.body);
         if (node.test !== undefined && node.consequent.body[position].expression !== undefined) {
             var test = JSON.stringify(node.test);
-            var argument = JSON.stringify(node.consequent.body[position].expression.right); //should be changed to find if node exactly when there are mutiple nodes
+            var argument = JSON.stringify(node.consequent.body[position].expression.right); 
             return JSON.parse(`{
      "type": "IfStatement",
      "test": ${test},
@@ -161,13 +168,14 @@ var replace_main = function () {
         console.log("Before refactoring");
         console.log(data);
         var ast = esprima.parse(data);
-        console.log('\n AST BEFORE REFACTORING: \n');
-        console.log(JSON.stringify(ast, null, 4));
+//        console.log('\n AST BEFORE REFACTORING: \n');
+//        console.log(JSON.stringify(ast, null, 4));
 
 
         replace_nested_conditionals(ast);
 
-
+//        console.log('\n AST AFTER REFACTORING: \n');
+//        console.log(JSON.stringify(ast, null, 4));
 
         code = escodegen.generate(ast);
         console.log("\n\n");

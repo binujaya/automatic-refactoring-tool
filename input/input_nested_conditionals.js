@@ -54,18 +54,20 @@ if (isDead) {
 //    printSum(amount);
 //
 //}
-//var getPayAmount = function () {//nested -if
-//if (isDead) {
-//    result = deadAmount();
-//} else {
-//    if (isSeparated) {
-//        result = separatedAmount();
-//    } else {
-//        if (isRetired) {
-//            result = retiredAmount();
-//        } else {
-//            result = normalPayAmount();
-//        }
-//    }
-//}
-//}
+var marks=80;
+var getGrade = function () {//nested -if
+if (Marks>=75) {
+    result = 'A';
+} else {
+    if (Marks>=65) {
+        result = 'B';
+    } else {
+        if (Marks>=50) {
+            result ='C';
+        } else {
+            result ='F';
+        }
+    }
+}
+    return result;
+}
