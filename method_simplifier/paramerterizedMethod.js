@@ -6,15 +6,15 @@ var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 var compareExpression = require('./compareExpression.js');
 
-/* Test Script - before 
+/* //Test Script - before 
 
 var codeString = 'var salary = 10000; function fivePresentAdd(){ salary = salary + 5;}  function test(a){alert();} function fivePresentRise(){ salary *= 5;} function tenPresentAdd(){ salary = salary + 10;} function tenPresentRise(){ salary *= 10;} fivePresentRise(); tenPresentAdd();';
 var ast = esprima.parse(codeString);
 console.log('\n Befor Refactoring\n');
-console.log(JSON.stringify(ast, null, 4));
+//console.log(JSON.stringify(ast, null, 4));
 var code = escodegen.generate(ast);
-console.log(code + "\n");  
- */
+console.log(code + "\n");   */
+ 
  
 var n = 1;
 var nodes = []; 
@@ -198,7 +198,7 @@ var editFunctionCallee = function(ast,pastName,argValue,newName){
 }
 
 // start search
-var searchParameterizeMethods = function(){
+var searchParameterizeMethods = function(ast){
 	estraverse.traverse(ast, {
 		enter : function (node, parent) {
 			if(node.type =='FunctionDeclaration' && node.id.type =='Identifier' && node.params.length == 0){
@@ -208,13 +208,13 @@ var searchParameterizeMethods = function(){
 	});
 }
 
-/* Test Script - After refactoring
+/* //Test Script - After refactoring
 
-searchParameterizeMethods();
+searchParameterizeMethods(ast);
 matchDuplicatemethods(ast);
 
 console.log('\n After Refactoring\n');
-console.log(JSON.stringify(ast, null, 4));
+//console.log(JSON.stringify(ast, null, 4));
 var refactoredCode = escodegen.generate(ast);
 console.log(refactoredCode); */
 
