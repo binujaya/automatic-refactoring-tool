@@ -19,6 +19,7 @@ var scopeChain = {
     });
   },
   getCurrentBlock: function() {
+    // TODO: return program.body if no block exists
     return this.blocks[this.blocks.length - 1].body;
   },
   getParentBlock: function() {
