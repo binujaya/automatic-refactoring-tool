@@ -24,6 +24,9 @@ var scopeChain = {
   getParentBlock: function() {
     return this.blocks[this.blocks.length - 2].body;
   },
+  getGrandParentNode: function() {
+    return this.chain[this.chain.length - 3];
+  },
   print: function() {
     console.log(this.chain.map(node => node.type).join(' => '));
   }

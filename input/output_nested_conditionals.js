@@ -1,17 +1,13 @@
-var getPayAmount = function () {
-    var result;
-    if (isDead) {
-        result = deadAmount();
+if (isDead) {
+    result = deadAmount();
+} else {
+    if (isSeparated) {
+        result = separatedAmount();
     } else {
-        if (isSeparated) {
-            result = separatedAmount();
+        if (isRetired) {
+            result = retiredAmount();
         } else {
-            if (isRetired) {
-                result = retiredAmount();
-            } else {
-                result = normalPayAmount();
-            }
+            result = normalPayAmount();
         }
     }
-    return result;
-};
+}
