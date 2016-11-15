@@ -30,16 +30,28 @@ var isTrivialNode = function(node) {
 var addDepthToNodes = function(ast) {
   estraverse.traverse(ast, {
     enter: function(node, parent) {
-      if (!parent) node.depthLevel = 0;
-      else if (isTrivialNode(node)) node.depthLevel = parent.depthLevel;
-      else node.depthLevel = parent.depthLevel + 1;
+      if (!parent) {
+        node.depthLevel = 0;
+      }
+      else if (isTrivialNode(node)) {
+        node.depthLevel = parent.depthLevel;
+      }
+      else {
+        node.depthLevel = parent.depthLevel + 1;
+      }
     },
     leave: function (node, parent) {
       if (node.maxSubTreeDepth===undefined) {
         node.maxSubTreeDepth = 0;
       }
-      else {
-        if (parent.maxSubTreeDepth < node.maxSubTreeDepth+1) {
+      if (parent && parent.maxSubTreeDepth===undefined) {
+        parent.maxSubTreeDepth = 0;
+      }
+      if (parent && parent.maxSubTreeDepth < node.maxSubTreeDepth+1) {
+        if (isTrivialNode(node)) {
+          parent.maxSubTreeDepth = node.maxSubTreeDepth;
+        }
+        else {
           parent.maxSubTreeDepth = node.maxSubTreeDepth+1;
         }
       }
@@ -161,12 +173,18 @@ var extractVariables = function (ast) {
     enter: function (node, parent) {
       scopeChain.push(node);
       if (scopeChain.find('IfStatement') && node.type=='LogicalExpression') {
-        console.log(node);
-        function (node) {
-          if (node.left.left) {
-
-          }
-        };
+        // IfStatement is the parent of first LogicalExpression
+        if (parent.type=='IfStatement') {
+          var ifNode = parent;
+        }
+        // compound condition
+        if (node.left.type=='LogicalExpression') {
+          console.log('compound');
+        }
+        // simple condition
+        else {
+          console.log('simple');
+        }
       }
     },
     leave: function (node, parent) {
