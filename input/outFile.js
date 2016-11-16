@@ -27,6 +27,7 @@ if (price) {
 printBill(amount);
 console.log(amount);
 if (amount > 1000) {
+    printBill(amount);
 } else {
 }
 printHash();

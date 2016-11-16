@@ -44,7 +44,7 @@ if (price) {
 }
 if(amount >1000){
     printHash();
-    printBill(amount);//have to handle e if eke witharak thiye nm handle karanna..
+    printBill(amount);
 } 
 else{
    printHash(); 
