@@ -29,7 +29,7 @@ var replaceWithBreak = function (ast, newNode) {
  }`);
     estraverse.replace(ast, {
         enter: function (node, parent) {
-            if (JSON.stringify(newNode) == JSON.stringify(node)) {
+            if (JSON.stringify(newNode) === JSON.stringify(node)) {
                 return breakNode;
             }
         }
@@ -38,14 +38,19 @@ var replaceWithBreak = function (ast, newNode) {
 
 
 
-var isAbleToReplaceWithBreak = function (ast) {
+var replaceFunction = function (ast) {
     estraverse.traverse(ast, {
 
         enter: function enter(node, parent) {
             scopeChain.push(node);
             var findWhile = scopeChain.find('WhileStatement');
-            var findDoWhile = scopeChain.find('DoWhileStatement');//replace with break
-            if (node.type === "AssignmentExpression" && (findWhile || findDoWhile)) {
+            var findDoWhile = scopeChain.find('DoWhileStatement'); //replace with break
+            var findFor = scopeChain.find('ForStatement');
+            var findForIn = scopeChain.find('ForInStatement');
+            var findForOf = scopeChain.find('ForOfStatement');
+            var findIf = scopeChain.find('IfStatement');
+
+            if (node.type === "AssignmentExpression" && (findWhile || findDoWhile || findFor)) {
                 var position;
 
                 if (scopeChain.getGrandParentNode().type === "BlockStatement") position = scopeChain.getCurrentBlock().indexOf(parent);
@@ -58,7 +63,7 @@ var isAbleToReplaceWithBreak = function (ast) {
                     if (whileNode.test !== undefined) {
 
                         if (node.left.name === whileNode.test.name) {
-                            replaceWithBreak(scopeChain.getCurrentBlock()[position], node);
+                            replaceWithBreak(scopeChain.getGrandParentNode(), parent);
                         }
                     }
                 }
@@ -66,11 +71,24 @@ var isAbleToReplaceWithBreak = function (ast) {
                     var whileNode = scopeChain.getNode('DoWhileStatement');
                     if (whileNode.test !== undefined) {
                         if (node.left.name === whileNode.test.name) {
-                            replaceWithBreak(scopeChain.getCurrentBlock()[position], node);
+
+                            replaceWithBreak(scopeChain.getGrandParentNode(), parent);
 
                         }
                     }
                 }
+                if ((findFor || findForIn || findForOf) && (findIf)) {
+                    var IfNode = scopeChain.getNode("IfStatement");
+                    if (IfNode.test.argument.name === node.left.name) {
+
+                        replaceWithBreak(scopeChain.getGrandParentNode(), parent);
+
+                    }
+
+
+
+                }
+
             }
 
         },
@@ -115,7 +133,7 @@ var removeFlagMain = function () {
         console.log('\n AST BEFORE REFACTORING: \n');
         console.log(JSON.stringify(ast, null, 4));
 
-        isAbleToReplaceWithBreak(ast);
+        replaceFunction(ast);
 
         code = escodegen.generate(ast);
         console.log("\n\n");
