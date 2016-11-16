@@ -185,6 +185,13 @@ var extractVariables = function (ast) {
     },
     leave: function (node, parent) {
       scopeChain.pop();
+      if (parent.type=='BinaryExpression' && node.maxSubtreeDepth > 1) {
+        var newName = nameGenerator.genericName('comp');
+        var newVarInitialization = varGenerator.initializeVarToBlock(newName, JSON.stringify(node, null, 4));
+        var newVarInstance = varGenerator.newInstance(newName);
+        scopeChain.getCurrentBlock().splice(0,0,newVarInitialization);
+        return newVarInstance;
+      }
     }
   });
 };
