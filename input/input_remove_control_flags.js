@@ -16,6 +16,8 @@ do {
     if (i == 6) {
         value = false;
 
+    }else{
+        value = true;
     }
 }
 while (value);

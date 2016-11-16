@@ -25,6 +25,13 @@ var scopeChain = {
             }
         }
     },
+    getParentNode: function (nodeType) {
+        for (var i = 1; i < this.chain.length; i++) {
+            if (this.chain[i].type === nodeType) {
+                return this.chain[i-1];
+            }
+        }
+    },
     getCurrentBlock: function () {
         return this.blocks[this.blocks.length - 1].body;
     },

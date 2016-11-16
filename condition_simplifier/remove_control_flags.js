@@ -1,3 +1,5 @@
+//http://stackoverflow.com/questions/3524970/why-does-lua-have-no-continue-statement
+
 var fs = require('fs');
 var escodegen = require('escodegen');
 var esprima = require('esprima');
@@ -6,19 +8,19 @@ var scopeChain = require('./scopeChain.js').scopeChain;
 
 
 
-var findControlFlagVaraible = function (array) {
+var findControlFlagVaraible = function (array, value,name) {
+    var newValue;
+    newValue = value ? false : true;
     for (var k = 0; k < array.length; k++) {
+        if(array[k].declarations !== undefined && array[k].declarations !== null){
         var node = array[k].declarations[0];
-        if (node.type === "VariableDeclarator" && (node.init.value === true || node.init.value === false)) {
+        if (node.type === "VariableDeclarator" && node.init.value === newValue && node.id.name === name) {
 
-            var valueObj = {
-                key: node.id.name,
-                test: node.init,
-                value: node.init.value
-            };
-            return valueObj;
+            return true;
+        }
         }
     }
+    return false;
 };
 
 var replaceWithBreak = function (ast, newNode) {
@@ -39,10 +41,13 @@ var replaceWithBreak = function (ast, newNode) {
 
 
 var replaceFunction = function (ast) {
+
     estraverse.traverse(ast, {
 
         enter: function enter(node, parent) {
             scopeChain.push(node);
+
+
             var findWhile = scopeChain.find('WhileStatement');
             var findDoWhile = scopeChain.find('DoWhileStatement'); //replace with break
             var findFor = scopeChain.find('ForStatement');
@@ -60,17 +65,20 @@ var replaceFunction = function (ast) {
 
                 if (findWhile) {
                     var whileNode = scopeChain.getNode('WhileStatement');
+                    var parentNode = scopeChain.getParentNode('WhileStatement');
                     if (whileNode.test !== undefined) {
 
-                        if (node.left.name === whileNode.test.name) {
+                        if ((node.left.name === whileNode.test.name) && findControlFlagVaraible(parentNode.body, node.right.value,node.left.name)) {
                             replaceWithBreak(scopeChain.getGrandParentNode(), parent);
                         }
                     }
+
                 }
                 if (findDoWhile) {
                     var whileNode = scopeChain.getNode('DoWhileStatement');
+                    var parentNode = scopeChain.getParentNode('DoWhileStatement');
                     if (whileNode.test !== undefined) {
-                        if (node.left.name === whileNode.test.name) {
+                        if ((node.left.name === whileNode.test.name)&& findControlFlagVaraible(parentNode.body,  node.right.value,node.left.name)){
 
                             replaceWithBreak(scopeChain.getGrandParentNode(), parent);
 
@@ -78,8 +86,11 @@ var replaceFunction = function (ast) {
                     }
                 }
                 if ((findFor || findForIn || findForOf) && (findIf)) {
+                    if (findFor) parentNode = scopeChain.getParentNode('ForStatement');
+                    if (findForIn) parentNode = scopeChain.getParentNode('ForInStatement');
+                    if (findForOf) parentNode = scopeChain.getParentNode('ForOfStatement');
                     var IfNode = scopeChain.getNode("IfStatement");
-                    if (IfNode.test.argument.name === node.left.name) {
+                    if ((IfNode.test.argument.name === node.left.name)&&(findControlFlagVaraible(parentNode.body,  node.right.value,node.left.name))) {
 
                         replaceWithBreak(scopeChain.getGrandParentNode(), parent);
 

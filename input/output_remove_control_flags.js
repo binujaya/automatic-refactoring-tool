@@ -14,6 +14,8 @@ do {
     i++;
     if (i == 6) {
         break;
+    } else {
+        value = true;
     }
 } while (value);
 var found = false;

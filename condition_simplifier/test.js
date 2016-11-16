@@ -12,3 +12,23 @@ for (var i = 0; i < people.length; i++) {
         }
     }
 }
+
+var flag= false;
+
+for (var i = 0; i < 10; i++) {
+    if (!flag) {
+        
+        console.log("i== ",i);
+        if(i==5){
+            flag=true;
+            
+        }else{
+            flag=false;
+            
+        }
+            
+        
+    
+        
+    }
+}
