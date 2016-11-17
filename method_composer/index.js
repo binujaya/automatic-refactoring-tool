@@ -41,18 +41,19 @@ var addDepthToNodes = function(ast) {
       }
     },
     leave: function (node, parent) {
-      if (node.maxSubTreeDepth===undefined) {
-        node.maxSubTreeDepth = 0;
+      // NOTE: maxSubtreeDepth does not cater well for broad yet shallow subtrees
+      if (node.maxSubtreeDepth===undefined) {
+        node.maxSubtreeDepth = 0;
       }
-      if (parent && parent.maxSubTreeDepth===undefined) {
-        parent.maxSubTreeDepth = 0;
+      if (parent && parent.maxSubtreeDepth===undefined) {
+        parent.maxSubtreeDepth = 0;
       }
-      if (parent && parent.maxSubTreeDepth < node.maxSubTreeDepth+1) {
+      if (parent && parent.maxSubtreeDepth < node.maxSubtreeDepth+1) {
         if (isTrivialNode(node)) {
-          parent.maxSubTreeDepth = node.maxSubTreeDepth;
+          parent.maxSubtreeDepth = node.maxSubtreeDepth;
         }
         else {
-          parent.maxSubTreeDepth = node.maxSubTreeDepth+1;
+          parent.maxSubtreeDepth = node.maxSubtreeDepth+1;
         }
       }
     }
@@ -87,7 +88,7 @@ var removeAssignToParam = function(ast) {
         if (loopNode===undefined && (paramInAssignment || paramInUpdate)) {
           oldName = node.left ? node.left.name : node.argument.name;
           newName = nameGenerator.genericName('comp');
-          newVar = varGenerator(newName, oldName);
+          newVar = varGenerator.initializeVarToVar(newName, oldName);
           parentIndex = scopeChain.getCurrentBlock().indexOf(parent);
           scopeChain.getCurrentBlock().splice(parentIndex,0,newVar);
           newVarIndex = parentIndex;
@@ -99,7 +100,7 @@ var removeAssignToParam = function(ast) {
         if (loopNode && (paramInAssignment || paramInUpdate)) {
           oldName = node.left ? node.left.name : node.argument.name;
           newName = nameGenerator.genericName('comp');
-          newVar = varGenerator(newName, oldName);
+          newVar = varGenerator.initializeVarToVar(newName, oldName);
           parentIndex = scopeChain.getParentBlock().indexOf(loopNode);
           scopeChain.getParentBlock().splice(parentIndex,0,newVar);
           newVarIndex = parentIndex;
@@ -169,26 +170,28 @@ var addInlineMethods = function (ast) {
 
 
 var extractVariables = function (ast) {
-  estraverse.traverse(ast, {
+  estraverse.replace(ast, {
     enter: function (node, parent) {
       scopeChain.push(node);
-      if (scopeChain.find('IfStatement') && node.type=='LogicalExpression') {
-        // IfStatement is the parent of first LogicalExpression
-        if (parent.type=='IfStatement') {
-          var ifNode = parent;
-        }
-        // compound condition
-        if (node.left.type=='LogicalExpression') {
-          console.log('compound');
-        }
-        // simple condition
-        else {
-          console.log('simple');
+      if (scopeChain.find('IfStatement') && parent.type=='LogicalExpression') {
+        if (node.type != 'LogicalExpression' && node.maxSubtreeDepth > 1) {
+          var newName = nameGenerator.genericName('comp');
+          var newVarInitialization = varGenerator.initializeVarToBlock(newName, JSON.stringify(node, null, 4));
+          var newVarInstance = varGenerator.newInstance(newName);
+          scopeChain.getCurrentBlock().splice(0,0,newVarInitialization);
+          return newVarInstance;
         }
       }
     },
     leave: function (node, parent) {
       scopeChain.pop();
+      if (parent.type=='BinaryExpression' && node.maxSubtreeDepth > 1) {
+        var newName = nameGenerator.genericName('comp');
+        var newVarInitialization = varGenerator.initializeVarToBlock(newName, JSON.stringify(node, null, 4));
+        var newVarInstance = varGenerator.newInstance(newName);
+        scopeChain.getCurrentBlock().splice(0,0,newVarInitialization);
+        return newVarInstance;
+      }
     }
   });
 };
