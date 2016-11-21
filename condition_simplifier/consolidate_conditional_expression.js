@@ -21,30 +21,75 @@ var findSuitableIfs = function (array) {
 
 
     var ifArray = [];
+    var combinedNode;
+    var arrayToDelete = array.slice();
     for (var i = 0; i < array.length; i++) {
         for (var j = 0; j < array.length; j++) {
 
             if ((i !== j) && !findExistInArray(ifArray, array[i]) && array[i].consequent !== undefined && array[i].alternate !== undefined) {
 
                 if ((JSON.stringify(array[i].consequent) === JSON.stringify(array[j].consequent)) && (JSON.stringify(array[i].alternate) === JSON.stringify(array[j].alternate))) {
-                    console.log(array[i]);
+
                     ifArray.push(array[i]);
 
                 }
-
             }
-
-
         }
     }
 
+    if (ifArray.length > 1) {
 
-    //if consquent and alternate are same for all ifs
-    //make a single if combine the test with ors
-    //one consequent and one alternate
+        for (var k = 0; k < array.length; k++) { //remove the nodes
+            if (findExistInArray(ifArray, array[k])) {
+                array.splice(k, 1);
+                k = k - 1; //start again from begining   
+            }
+
+        }
+        combinedNode = createCombinedIf(ifArray);
+        array.push(combinedNode);
+    }
+};
+
+var createCombinedIf = function (array) {
+
+    var ifArrayLocal = array;
+    var type = "IfStatement";
+    var test = JSON.stringify(createComnibnedTestForOr(ifArrayLocal));
+    var consequent = JSON.stringify(array[0].consequent); //shuld be changed
+    var alternate = JSON.stringify(array[0].alternate);
+    return JSON.parse(`{
+     "type": "${type}",
+     "test": ${test},
+     "consequent":${consequent} ,
+     "alternate": ${alternate}
+ }`);
+
+
+
 
 };
 
+
+var createComnibnedTestForOr = function (array) { //recusrsive procedure to create composite test node
+    var left, right;
+    if (array.length > 1) {
+        right = JSON.stringify(array[array.length - 1].test);
+        if (array.length === 2) {
+            left = JSON.stringify(array[array.length - 2].test);
+        } else if (array.length > 2) {
+            array.splice(array.length - 1, 1);
+            left = JSON.stringify(createComnibnedTestForOr(array));
+        }
+        return JSON.parse(`{
+     
+     "type": "LogicalExpression",
+     "operator": "||",
+     "left": ${left},
+     "right": ${right}
+     }`);
+    }
+};
 
 var consolidateConditionalExpression = function (ast) {
     estraverse.traverse(ast, {
@@ -53,12 +98,7 @@ var consolidateConditionalExpression = function (ast) {
             scopeChain.push(node);
 
             if (node.body !== undefined && Array.isArray(node.body)) {
-
-
                 findSuitableIfs(node.body);
-
-
-
             }
 
         },
@@ -110,3 +150,6 @@ var consolidateConditionalsMain = function () {
     });
 };
 consolidateConditionalsMain();
+//want to handle if multiple duplicates in if array are present ex:[1,1,1,2,2,3]
+//want to handle and case
+//handle only ex: [1,1,1,1]
