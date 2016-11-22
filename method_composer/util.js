@@ -13,7 +13,7 @@ var nameGenerator = {
 
 var varGenerator = {
   // NOTE: declareVar is not used
-  declareVar : function (varName) {
+  declareVar: function(varName) {
     return JSON.parse(`{
         "type": "VariableDeclaration",
         "declarations": [
@@ -29,7 +29,7 @@ var varGenerator = {
         "kind": "var"
     }`);
   },
-  initializeVarToVar : function(varName1, varName2) {
+  initializeVarToVar: function(varName1, varName2) {
     return JSON.parse(`{
         "type": "VariableDeclaration",
         "declarations": [
@@ -48,7 +48,7 @@ var varGenerator = {
         "kind": "var"
     }`);
   },
-  initializeVarToBlock : function (varName, block) {
+  initializeVarToBlock: function(varName, block) {
     return JSON.parse(`{
         "type": "VariableDeclaration",
         "declarations": [
@@ -64,7 +64,7 @@ var varGenerator = {
         "kind": "var"
     }`);
   },
-  newInstance : function (varName) {
+  newInstance: function(varName) {
     return JSON.parse(`{
         "type": "Identifier",
         "name": "${varName}"
@@ -72,7 +72,38 @@ var varGenerator = {
   }
 };
 
+var methodGenerator = {
+  nonReturnMethod: function(methodName, body) {
+    return JSON.parse(`{
+        "type": "VariableDeclaration",
+        "declarations": [
+            {
+                "type": "VariableDeclarator",
+                "id": {
+                    "type": "Identifier",
+                    "name": "${methodName}"
+                },
+                "init": {
+                    "type": "FunctionExpression",
+                    "id": null,
+                    "params": [],
+                    "defaults": [],
+                    "body": {
+                        "type": "BlockStatement",
+                        "body": ${body}
+                    },
+                    "generator": false,
+                    "expression": false
+                }
+            }
+        ],
+        "kind": "var"
+    }`);
+  }
+};
+
 module.exports = {
   nameGenerator: nameGenerator,
-  varGenerator: varGenerator
+  varGenerator: varGenerator,
+  methodGenerator: methodGenerator
 };
