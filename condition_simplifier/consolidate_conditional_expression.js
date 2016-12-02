@@ -16,13 +16,63 @@ var findExistInArray = function (array, node) {
 
 };
 
+var findConditionals = function (array) { //shuld be removed
+
+
+    var ifArray = [];
+    var combinedNode;
+    var startingIndex;
+    var consequent;
+    var alternate;
+
+    for (var i = 0; i < array.length; i++) {
+
+
+        if (array[i].type !== undefined && array[i].type === "IfStatement") {
+            if (consequent === undefined) { //first time
+                consequent = array[i].consequent;
+                alternate = array[i].alternate;
+                ifArray.push(array[i]);
+
+
+            } else {
+                if ((array[i].consequent === consequent) && (array[i].alternate === alternate)) {
+                    ifArray.push(array[i]);
+
+                }
+
+
+
+
+            }
+
+        }
+    }
+
+    if (ifArray.length > 1) {
+
+        for (var k = 0; k < array.length; k++) { //remove the nodes
+            if (findExistInArray(ifArray, array[k])) {
+                array.splice(k, 1);
+                k = k - 1; //start again from begining   
+            }
+
+        }
+        // createArrayOfArrays(ifArray);
+        combinedNode = createCombinedIf(ifArray);
+        array.push(combinedNode);
+    }
+};
+
+
 
 var findSuitableIfs = function (array) {
 
 
     var ifArray = [];
+    var combinedIfArray;
     var combinedNode;
-    var arrayToDelete = array.slice();
+    var startingIndex;
     for (var i = 0; i < array.length; i++) {
         for (var j = 0; j < array.length; j++) {
 
@@ -46,9 +96,30 @@ var findSuitableIfs = function (array) {
             }
 
         }
-        combinedNode = createCombinedIf(ifArray);
-        array.push(combinedNode);
+        combinedIfArray = createArrayOfArrays(ifArray);
+        for (element in combinedIfArray) {
+            array.push(combinedIfArray[element]);
+        }
     }
+};
+
+var createArrayOfArrays = function (array) {
+
+    result = [];
+    newElements = [];
+
+    array.forEach(function (a) {
+        JSON.stringify(a.consequent) in this || result.push(this[JSON.stringify(a.consequent)] = []);
+        this[JSON.stringify(a.consequent)].push(a);
+    }, Object.create(null));
+
+    for (item in result) {
+        var combinedNode = createCombinedIf(result[item]);
+        newElements.push(combinedNode);
+    }
+
+    return newElements;
+
 };
 
 var createCombinedIf = function (array) {
@@ -99,6 +170,7 @@ var consolidateConditionalExpression = function (ast) {
 
             if (node.body !== undefined && Array.isArray(node.body)) {
                 findSuitableIfs(node.body);
+                //findConditionals(node.body);
             }
 
         },
