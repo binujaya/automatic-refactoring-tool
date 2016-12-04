@@ -222,6 +222,14 @@ var consolidateConditionalsMain = function () {
     });
 };
 consolidateConditionalsMain();
-//want to handle if multiple duplicates in if array are present ex:[1,1,1,2,2,3]
+module.exports = {
+    findExistInArray:findExistInArray,
+    findConditionals:findConditionals,
+    findSuitableIfs:findSuitableIfs,
+    createCombinedIf:createCombinedIf,
+    createComnibnedTestForOr:createComnibnedTestForOr,
+    consolidateConditionalExpression:consolidateConditionalExpression,
+    consolidateConditionalsMain:consolidateConditionalsMain    
+};
+
 //want to handle and case
-//handle only ex: [1,1,1,1]

@@ -114,7 +114,7 @@ var deleteDuplicates = function (node, array) {
 
 };
 
-var find_indexOfArray = function (array, node) {
+var findIndexOfArray = function (array, node) {
     return array.indexOf(node);
 };
 
@@ -128,7 +128,7 @@ var removeDuplicates = function (ast) {
             if (node.type === "IfStatement" && (parent.type === "Program" || scopeChain.getGrandParentNode().type === "FunctionExpression")) {
 
                 newNodes = findDuplicates(node);
-                var index = find_indexOfArray(parent.body, node);
+                var index = findIndexOfArray(parent.body, node);
                 for (var k = 0; k < newNodes.length; k++) {
                     parent.body.splice(index + (k + 1), 0, newNodes[k]);
                 }
@@ -174,3 +174,12 @@ var duplicateMain = function () {
     });
 };
 duplicateMain();
+module.exports = {
+    checkFunctionCallsInArray:checkFunctionCallsInArray,
+    searchItem:searchItem,
+    findDuplicates:findDuplicates,
+    deleteDuplicates:deleteDuplicates,
+    findIndexOfArray:findIndexOfArray,
+    removeDuplicates:removeDuplicates,
+    duplicateMain:duplicateMain   
+};

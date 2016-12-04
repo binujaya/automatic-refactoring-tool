@@ -192,3 +192,15 @@ var replaceMain = function () {
     });
 };
 replaceMain();
+module.exports = {
+    foundIfInArray: foundIfInArray,
+    replaceHelper: replaceHelper,
+    findNodeIndex: findNodeIndex,
+    checkForNestedIf: checkForNestedIf,
+    isInsideFunction: isInsideFunction,
+    replaceNestedConditionals:replaceNestedConditionals,
+    removeNode:removeNode,
+    findIndexOfArray:findIndexOfArray,
+    createSeparateIf:createSeparateIf,
+    replaceMain:replaceMain  
+};
