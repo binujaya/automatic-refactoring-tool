@@ -6,7 +6,7 @@ var esprima = require('esprima');
 var escodegen = require('escodegen');
 
 var MethodComposer = require('./method_composer/index.js');
-var MethodSimplifier = require('');
+var MethodSimplifier;
 var ConditionalSimplifier;
 
 var refactoredCode;
