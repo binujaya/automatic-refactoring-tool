@@ -228,8 +228,7 @@ module.exports = {
     findSuitableIfs:findSuitableIfs,
     createCombinedIf:createCombinedIf,
     createComnibnedTestForOr:createComnibnedTestForOr,
-    consolidateConditionalExpression:consolidateConditionalExpression,
-    consolidateConditionalsMain:consolidateConditionalsMain    
+    consolidateConditionalExpression:consolidateConditionalExpression   
 };
 
 //want to handle and case

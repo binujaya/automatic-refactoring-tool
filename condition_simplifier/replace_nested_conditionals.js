@@ -201,6 +201,5 @@ module.exports = {
     replaceNestedConditionals:replaceNestedConditionals,
     removeNode:removeNode,
     findIndexOfArray:findIndexOfArray,
-    createSeparateIf:createSeparateIf,
-    replaceMain:replaceMain  
+    createSeparateIf:createSeparateIf 
 };

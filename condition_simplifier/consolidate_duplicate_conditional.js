@@ -180,6 +180,5 @@ module.exports = {
     findDuplicates:findDuplicates,
     deleteDuplicates:deleteDuplicates,
     findIndexOfArray:findIndexOfArray,
-    removeDuplicates:removeDuplicates,
-    duplicateMain:duplicateMain   
+    removeDuplicates:removeDuplicates 
 };
