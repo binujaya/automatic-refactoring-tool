@@ -12,7 +12,7 @@ describe('MethodComposer', function () {
     before(function() {
       ast = esprima.parse(sampleCode1);
       MethodComposer.addDepthToNodes(ast);
-    })
+    });
     it('should assign depth to each node', function() {
       expect(ast.depth).to.equal(0);
       expect(ast.body[0].depth).to.equal(1);
@@ -23,6 +23,15 @@ describe('MethodComposer', function () {
     it('should rename myFunc method to myFunc2', function () {
       //exp = "var x = 45; var y = 44; var myFunc2 = function(x1, y1) { var z1; x1++; y1++; y1 = y1 * 2; z1 = x1 + y1; return z1; } var z = myFunc(x, y); console.log(z);";
       //expect(escodegen.generate(ast2).replace(/ /g,'')).to.equal(exp.replace(/ /g,''));
+    });
+  });
+  describe('removeMethodParams', function () {
+    before(function () {
+      ast = esprima.parse(sampleCode2);
+      MethodComposer.removeAssignToParam(ast);
     })
+    it('should get all parameters into funcParams array', function () {
+      
+    });
   })
 });

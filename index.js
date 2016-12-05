@@ -1,12 +1,19 @@
 var fs = require('fs');
+var express = require('express');
+var app = express();
+var path = require('path');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 
 var MethodComposer = require('./method_composer/index.js');
-var MethodSimplifier;
+var MethodSimplifier = require('');
 var ConditionalSimplifier;
 
 var refactoredCode;
+
+app.post('/sourcecode', function (req, res) {
+
+})
 
 fs.readFile('./method_composer/inputFile4.js', 'utf8', function (err,data) {
   if (err) {
@@ -17,14 +24,14 @@ fs.readFile('./method_composer/inputFile4.js', 'utf8', function (err,data) {
   //console.log('\n AST BEFORE REFACTORING: \n');
   //console.log(JSON.stringify(ast , null, 4));
 
-  //insert refactoring modules here
-  //MethodComposer.renameMethod(ast, 'myFunc', 'myFunc2');
-  // MethodComposer.addDepthToNodes(ast);
-  //MethodComposer.printNode('BlockStatement', ast);
-  // MethodComposer.removeAssignToParam(ast);
-  // MethodComposer.addInlineMethods(ast);
-  // MethodComposer.extractVariables(ast);
+  //method composer module
+  MethodComposer.addDepthToNodes(ast);
+  MethodComposer.removeAssignToParam(ast);
+  MethodComposer.addInlineMethods(ast);
+  MethodComposer.extractVariables(ast);
   MethodComposer.extractMethods(ast);
+
+  //ConditionalSimplifier module
 
   //console.log(JSON.stringify(ast, null, 4));
 
@@ -40,4 +47,9 @@ fs.readFile('./method_composer/inputFile4.js', 'utf8', function (err,data) {
       throw err;
     }
   });
+  app.get('/refactoredcode', function (req, res) {
+    res.sendFile(path.join(__dirname+'/method_composer/outputFile.js'));
+  });
+  app.listen(1337);
+  console.log('Refactored code served at port 1337, url /refactoredcode');
 });
