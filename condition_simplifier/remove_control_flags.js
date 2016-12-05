@@ -160,7 +160,7 @@ var removeFlagMain = function () {
 
     });
 };
-removeFlagMain();
+//removeFlagMain();
 module.exports = {
     findControlFlagVaraible:findControlFlagVaraible,
     replaceWithBreak:replaceWithBreak,

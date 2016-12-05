@@ -191,7 +191,7 @@ var replaceMain = function () {
 
     });
 };
-replaceMain();
+//replaceMain();
 module.exports = {
     foundIfInArray: foundIfInArray,
     replaceHelper: replaceHelper,

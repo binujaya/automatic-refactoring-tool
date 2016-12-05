@@ -45,7 +45,7 @@ var findDuplicates = function (node) {
     var previousFunctionCalls;
     var newPreviousFunctionCalls = [];
     var k = 0;
-    while (node !== undefined) {
+    while (node !== undefined && node !== null) {
 
         if (node.consequent !== undefined) {
             bodyArray = node.consequent.body;
@@ -93,7 +93,7 @@ var deleteDuplicates = function (node, array) {
     var bodyArray;
 
 
-    while (node !== undefined) {
+    while (node !== undefined && node !== null) {
 
         if (node.consequent !== undefined) {
             bodyArray = node.consequent.body;
@@ -173,7 +173,7 @@ var duplicateMain = function () {
 
     });
 };
-duplicateMain();
+//duplicateMain();
 module.exports = {
     checkFunctionCallsInArray:checkFunctionCallsInArray,
     searchItem:searchItem,

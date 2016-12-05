@@ -221,7 +221,7 @@ var consolidateConditionalsMain = function () {
 
     });
 };
-consolidateConditionalsMain();
+//consolidateConditionalsMain();
 module.exports = {
     findExistInArray:findExistInArray,
     findConditionals:findConditionals,
