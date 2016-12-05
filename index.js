@@ -6,8 +6,16 @@ var esprima = require('esprima');
 var escodegen = require('escodegen');
 
 var MethodComposer = require('./method_composer/index.js');
-var MethodSimplifier = require('');
+
+// Method Call Simplifier module 
+var parameterizeMethod = require('./method_simplifier/paramerterizedMethod.js');
+var removeParameters = require('./method_simplifier/removeParameter.js');
+//var replaceParameter = require('./method_simplifier/replaceParameterWithMethodCall.js');
+var renameShortNames = require('./method_simplifier/method_rename.js');
+var renamePoorNames = require('./method_simplifier/renamePoorName.js');
+
 var ConditionalSimplifier;
+
 
 var refactoredCode;
 
@@ -32,6 +40,14 @@ fs.readFile('./method_composer/inputFile4.js', 'utf8', function (err,data) {
   MethodComposer.extractMethods(ast);
 
   //ConditionalSimplifier module
+  
+  // Method Call Simplifier module
+  parameterizeMethod.searchParameterizeMethods(ast);
+  parameterizeMethod.matchDuplicatemethods(ast);
+  removeParameters.searchRemoveParameter(ast);
+  renameShortNames.searchMethodsName(ast);
+  renamePoorNames.searchMethodsName(ast);
+  
 
   //console.log(JSON.stringify(ast, null, 4));
 
