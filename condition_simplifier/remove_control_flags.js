@@ -161,3 +161,10 @@ var removeFlagMain = function () {
     });
 };
 removeFlagMain();
+module.exports = {
+    findControlFlagVaraible:findControlFlagVaraible,
+    replaceWithBreak:replaceWithBreak,
+    replaceFunction:replaceFunction,
+    removeControlFlags:removeControlFlags,
+    removeFlagMain:removeFlagMain    
+};
