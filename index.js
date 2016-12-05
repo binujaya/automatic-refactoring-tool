@@ -7,7 +7,10 @@ var escodegen = require('escodegen');
 
 var MethodComposer = require('./method_composer/index.js');
 var MethodSimplifier = require('');
-var ConditionalSimplifier;
+var ConConsolidateConditional = require('./condition_simplifier/consolidate_conditional_expression.js');
+var ConConsolidateDuplicate = require('./condition_simplifier/consolidate_duplicate_conditional.js');
+var ConRemoveFlags = require('./condition_simplifier/remove_control_flags.js');
+var ConReplaceNested = require('./condition_simplifier/replace_nested_conditionals.js');
 
 var refactoredCode;
 
@@ -28,10 +31,15 @@ fs.readFile('./method_composer/inputFile4.js', 'utf8', function (err,data) {
   MethodComposer.addDepthToNodes(ast);
   MethodComposer.removeAssignToParam(ast);
   MethodComposer.addInlineMethods(ast);
+  ConConsolidateConditional.consolidateConditionalExpression(ast);//conditionalSimplifier
   MethodComposer.extractVariables(ast);
   MethodComposer.extractMethods(ast);
 
   //ConditionalSimplifier module
+ 
+  ConConsolidateDuplicate.removeDuplicates(ast);
+  ConRemoveFlags.replaceFunction(ast);
+  ConReplaceNested.replaceNestedConditionals(ast);   
 
   //console.log(JSON.stringify(ast, null, 4));
 
