@@ -96,6 +96,55 @@ var removable = function(nodeObj){
 	return falg;
 }
 
+var removePara = function(nodeObj,paraList){
+	estraverse.traverse(nodeObj, {
+		enter : function (node,parent) {
+			if(node.type =='FunctionDeclaration' && node.id.type == 'Identifier' ){
+				paraList.forEach(function(para) {
+					var idx = node.params.indexOf(para);
+					node.params.splice(idx, 1);
+				});
+			}
+			if(node.type =='FunctionExpression' && node.id == null ){
+				paraList.forEach(function(para) {
+					var idx = node.params.indexOf(para);
+					node.params.splice(idx, 1);
+				});
+			}
+		}
+	});
+}
+
+var changeMethodBody = function(ast,name,removeParameter){
+	var paraList = [];
+	estraverse.traverse(ast, {
+		enter : function (node,parent) {
+			if(node.type =='FunctionDeclaration' && node.id.type == 'Identifier' && node.id.name == name){
+				var indexes = Object.keys(removeParameter);
+				indexes.forEach(function(index) {
+					var replaceNode = removeParameter[index];
+					var argName = node.params[index].name;
+					replaceNode.declarations[0].id.name = argName;
+					node.body.body.unshift(replaceNode);
+					paraList.push(argName);
+				});
+				removePara(node,paraList);
+			}
+			if(node.type =='FunctionExpression' && node.id == null && parent.id.name == name){
+				var indexes = Object.keys(removeParameter);
+				indexes.forEach(function(index) {
+					var replaceNode = removeParameter[index];
+					var argName = node.params[index].name;
+					replaceNode.declarations[0].id.name = argName;
+					node.body.body.unshift(replaceNode);
+					paraList.push(argName);
+				});
+				removePara(node,paraList);
+			}
+		}
+	});
+}
+
 var refacController = function(ast){
 	var argList = [];
 	estraverse.traverse(ast, {
@@ -106,9 +155,10 @@ var refacController = function(ast){
 			var calleeCount = getCalleeCount(ast,name);
 			if(calleeCount == 1){
 				var arguments = getArguments(node);
-				console.log(arguments);
 				var removeParameter = checkArguments(ast,arguments);
-				console.log(removeParameter);
+				if(removeParameter != null){
+					changeMethodBody(ast,name,removeParameter);
+				}
 			}
 		}
 	},
@@ -120,3 +170,7 @@ var refacController = function(ast){
 }
 
 refacController(ast);
+console.log('\n After Refactoring\n');
+//console.log(JSON.stringify(ast, null, 4));
+var refactoredCode = escodegen.generate(ast);
+console.log(refactoredCode); 
