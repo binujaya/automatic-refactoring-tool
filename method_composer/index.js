@@ -134,8 +134,10 @@ var replaceCalleeWithMethodBody = function (ast, calleeName, methodBody) {
 var deleteMethodDefinition = function (ast, methodName) {
   estraverse.replace(ast, {
     enter: function (node, parent) {
-      if (node.type=='VariableDeclaration' && node.declarations[0].init.type=='FunctionExpression' && node.declarations[0].id.name==methodName) {
-        this.remove();
+      if (node.type=='VariableDeclaration' && node.declarations[0].init!=null && node.declarations[0].id.name==methodName) {
+        if (node.declarations[0].init.type=='FunctionExpression') {
+          this.remove();
+        }
       }
     }
   });
