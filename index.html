@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Refactoring Automation Tool</title>
+
+    <!-- jQuery -->
+    <script href="ui/js/jquery-3.1.1.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script href="ui/js/bootstrap.min.js"></script>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="ui/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="ui/css/2-col-portfolio.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Home</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="#">Wiki</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">Refactoring Automation Tool</h1>
+            </div>
+        </div>
+        <!-- /.row -->
+
+		<!-- Input -->
+        <div class="row">
+            <div class="col-lg-6 portfolio-item">
+                <div id="alert">
+					<p id="content"></p>
+					<p id="fileName"></p>
+					<p id="fileSize"></p>
+				</div>
+				<div>
+					<input type="file" id="fileinput" class="btn btn-primary"/>
+				</div>
+            </div>
+			<div class="col-lg-6 portfolio-item">
+				<div id="refactAlert">
+					<p id="msgContent"></p>
+				</div>
+				<div class="dropdown">
+					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Refactoring Methods
+					<span class="caret"></span></button>
+					<ul class="dropdown-menu" >
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="EM">Extracting methods</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="AIM">Adding inline methods</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="EV">Extracting variables</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RAP">Removing assignment to parameters</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="CM">Combine multiple If-Else statements together </label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="CD">Consolidate duplicate conditional fragments</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RNC">Replace nested conditionals</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RCF">Remove control flags</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RSNF">Rename Short Names Function</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPNF">Rename Poor Names Function</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Parameterize Methods</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPMC">Replace Paramter with method call</label></li>
+					</ul>
+				</div>
+				<div style="padding-top: 10px;">
+					<button type="button" class="btn btn-primary" id="refactBtn">Refactor</button>
+				</div>
+				<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+						<div class="modal-header">
+							Confirm Information
+						</div>
+						<div class="modal-body">
+							Are you sure want to start refactoring process?
+						</div>
+						<div class="modal-footer">
+							<button type="button" data-dismiss="modal" class="btn btn-primary" id="okBtn">OK</button>
+							<button type="button" data-dismiss="modal" class="btn btn-primary">Cancel</button>
+						</div>
+						</div>
+					</div>
+				</div>
+            </div>
+        </div>
+        <!-- /.row -->
+
+		<!-- Projects Row -->
+        <div class="row">
+
+
+        </div>
+        <!-- /.row -->
+
+        <!-- Projects Row -->
+        <div class="row">
+            <div class="col-lg-6 portfolio-item">
+                 <h3>
+                    <a href="#">Input Code</a>
+                 </h3>
+                <a href="#">
+                   <textarea name="comment" id="inputCode" rows="40" cols="78" readonly></textarea>
+                </a>
+            </div>
+            <div class="col-lg-6 portfolio-item">
+                 <h3>
+                    <a href="#">Refactored Code</a>
+                 </h3>
+                <a href="#">
+                   <textarea name="comment" id="refactoredCode" rows="40" cols="78" ></textarea>
+                </a>
+				<div style="padding-top: 10px;">
+					<button type="button" class="btn btn-primary" id="refactBtn">Download</button>
+				</div>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <hr>
+
+        <!-- Footer -->
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Copyright &copy; 2016</p>
+                </div>
+            </div>
+            <!-- /.row -->
+        </footer>
+    </div>
+    <!-- /.container -->
+
+    <script>
+  		jQuery(document).ready(function() {
+  			$("#alert").hide();
+  			$("#inputCode").text("");
+  			$("#refactoredCode").text("");
+  			jQuery("input:file").change(function(event) {
+  				var selectedFile = $('#fileinput')[0].files[0];
+  				$("#alert").show();
+  				if (selectedFile) {
+  					if(selectedFile.type == 'application/javascript'){
+  						if(selectedFile.size > 0){
+  							$("#alert").attr("class", "alert alert-info");
+  							$("#content").text("");
+  							$("#fileName").text("File Name: "+selectedFile.name);
+  							$("#fileSize").text("File Size: "+selectedFile.size +" bytes");
+  							$("#inputCode").text("");
+  							$("#refactoredCode").text("");
+  							readFile(selectedFile);
+  						}
+  						else{
+  							$("#inputCode").text("");
+  							$("#refactoredCode").text("");
+  							$("#alert").attr("class", "alert alert-warning");
+  							$("#content").text("Uploaded file is empty.");
+  							$("#fileName").text("");
+  							$("#fileSize").text("");
+  						}
+  					}
+  					else{
+  						$("#inputCode").text("");
+  						$("#refactoredCode").text("");
+  						$("#alert").attr("class", "alert alert-warning");
+  						$("#content").text("Wrong file. Please upload your JavaScript file.");
+  						$("#fileName").text("");
+  						$("#fileSize").text("");
+  					}
+  				}
+  				else{
+  					$("#inputCode").text("");
+  					$("#refactoredCode").text("");
+  					$("#alert").attr("class", "alert alert-warning");
+  					$("#content").text("Please upload your JavaScript file.");
+  					$("#fileName").text("");
+  					$("#fileSize").text("");
+  				}
+  			});
+  		})
+
+  		$(document).ready(function() {
+  			$('input[name="methods"]').attr('checked', false);
+  			$("#refactAlert").hide();
+  			$("#refactBtn").click(function(){
+  				var refactMethods = $('input[name="methods"]:checked').map(function() {
+  					return this.value;
+  				}).get();
+  				if(refactMethods.length >= 1){
+  					if($("#inputCode").val().length > 0){
+  						$("#refactAlert").hide();
+  						$('#confirm').modal({ backdrop: 'static', keyboard: false })
+  							.one('click', '#okBtn', function() {
+  							$('input[name="methods"]').attr('checked', false);
+  							// start coding here
+  							console.log("start");
+  						});
+  					}
+  					else{
+  						$("#refactAlert").show();
+  						$("#refactAlert").attr("class", "alert alert-warning");
+  						$("#msgContent").text("Please upload your JavaScript file.");
+  					}
+  				}
+  				else{
+  					$("#refactAlert").show();
+  					$("#refactAlert").attr("class", "alert alert-warning");
+  					$("#msgContent").text("Please select refactoring methods.");
+  				}
+  			});
+  		});
+
+  		function readFile(file){
+  			var reader = new FileReader();
+  			reader.onload = function(progressEvent){
+  				var lines = this.result.split('\n');
+  				for(var line = 0; line < lines.length; line++){
+  					$("#inputCode").append(lines[line]);
+  				}
+  			};
+  			reader.readAsText(file);
+  		}
+	  </script>
+
+  </body>
+
+</html>
