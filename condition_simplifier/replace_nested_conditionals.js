@@ -54,7 +54,7 @@ var checkForNestedIf = function (node) {
 }
 
 var isInsideFunction = function () {
-    if (scopeChain.getGrandParentNode() !== undefined && scopeChain.getGrandParentNode().type === "FunctionExpression") {
+    if (scopeChain.getGrandParentNode() !== undefined && (scopeChain.getGrandParentNode().type === "FunctionExpression"||scopeChain.getGrandParentNode().type ==="FunctionDeclaration")) {
         return true;
     }
     return false;
@@ -68,17 +68,11 @@ var replaceNestedConditionals = function (ast) {
             var nodes;
 
             scopeChain.push(node);
-            if (node.type === "ReturnStatement" && isInsideFunction()) { //delete the existing return statement of a function
-                var index = findIndexOfArray(parent.body, node);
-                parent.body.splice(index, 1);
-
-
-            }
 
             if (node.type === "IfStatement" && checkForNestedIf(node) && (isInsideFunction())) {
                 nodes = replaceHelper(node);
                 var index = findIndexOfArray(parent.body, node);
-                parent.body.splice(index, 1); //remove current node
+                parent.body.splice(index, 2); //remove current node assumption next node is return statement
                 for (var k = 0; k < nodes.length; k++) {
                     parent.body.splice(index + k, 0, nodes[k]);
                 }

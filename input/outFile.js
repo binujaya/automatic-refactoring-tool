@@ -31,3 +31,13 @@ if (amount > 1000) {
 } else {
 }
 printHash();
+function calculateFees(amount) {
+    var total;
+    if (amount > 2000) {
+        total = amount * 0.9;
+    } else {
+        total = amount * 0.98;
+    }
+    printTotal(total);
+    return total;
+}

@@ -10,16 +10,16 @@ var getPayAmount = function () {
     }
     return normalPayAmount();
 };
-var marks = 80;
-var getGrade = function () {
-    if (Marks >= 75) {
+function getGrade(marks) {
+    var result;
+    if (marks >= 75) {
         return 'A';
     }
-    if (Marks >= 65) {
+    if (marks >= 65) {
         return 'B';
     }
-    if (Marks >= 50) {
+    if (marks >= 50) {
         return 'C';
     }
     return 'F';
-};
+}

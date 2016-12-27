@@ -54,20 +54,20 @@ if (isDead) {
 //    printSum(amount);
 //
 //}
-var marks=80;
-var getGrade = function () {//nested -if
-if (Marks>=75) {
-    result = 'A';
-} else {
-    if (Marks>=65) {
-        result = 'B';
+function getGrade(marks) {
+    var result;
+    if (marks >= 75) {
+        result = 'A';
     } else {
-        if (Marks>=50) {
-            result ='C';
+        if (marks >= 65) {
+            result = 'B';
         } else {
-            result ='F';
+            if (marks >= 50) {
+                result = 'C';
+            } else {
+                result = 'F';
+            }
         }
     }
-}
     return result;
 }

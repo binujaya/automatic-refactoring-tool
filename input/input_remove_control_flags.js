@@ -10,7 +10,7 @@ while (control) {
 var i = 0; //do-while
 var value = true;
 do {
-    text += "The number is " + i;
+    text += "The number is ".concat(i);
     console.log(text);
     i++;
     if (i == 6) {

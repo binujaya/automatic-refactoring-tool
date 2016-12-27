@@ -125,7 +125,7 @@ var removeDuplicates = function (ast) {
             scopeChain.push(node);
             var newNodes = [];
 
-            if (node.type === "IfStatement" && (parent.type === "Program" || scopeChain.getGrandParentNode().type === "FunctionExpression")) {
+            if (node.type === "IfStatement" && ((parent.type === "Program"|| parent.type === "FunctionExpression") || scopeChain.getGrandParentNode().type === "FunctionDeclaration")) {
 
                 newNodes = findDuplicates(node);
                 var index = findIndexOfArray(parent.body, node);
