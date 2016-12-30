@@ -1,13 +1,13 @@
 var nameGenerator = {
   count: 0,
   refactoringType: {
-    comp: 'COMP',
+    comp: 'comp',
     cond: 'COND',
     simp: 'SIMP'
   },
   genericName: function(refactoring) {
     this.count++;
-    return 'PLACEHOLDER_' + this.refactoringType[refactoring] + '_' + this.count;
+    return 'VAR_' + this.count;
   }
 };
 

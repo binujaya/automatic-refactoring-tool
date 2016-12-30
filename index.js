@@ -26,7 +26,7 @@ app.post('/sourcecode', function (req, res) {
 
 })
 
-fs.readFile('./method_composer/inputFile4.js', 'utf8', function (err,data) {
+fs.readFile('./method_composer/inputFile8.js', 'utf8', function (err,data) {
   if (err) {
     throw err;
   }
@@ -38,25 +38,26 @@ fs.readFile('./method_composer/inputFile4.js', 'utf8', function (err,data) {
   //method composer module
   MethodComposer.addDepthToNodes(ast);
   MethodComposer.removeAssignToParam(ast);
+  // TODO: assignments in if conditions must come one level out of scope
   MethodComposer.addInlineMethods(ast);
-  ConConsolidateConditional.consolidateConditionalExpression(ast);//conditionalSimplifier
+  // ConConsolidateConditional.consolidateConditionalExpression(ast);//conditionalSimplifier
   MethodComposer.extractVariables(ast);
-  MethodComposer.extractMethods(ast);
+  // MethodComposer.extractMethods(ast);
 
   //ConditionalSimplifier module
 
 
-  ConConsolidateDuplicate.removeDuplicates(ast);
-  ConRemoveFlags.replaceFunction(ast);
-  ConReplaceNested.replaceNestedConditionals(ast);
+  // ConConsolidateDuplicate.removeDuplicates(ast);
+  // ConRemoveFlags.replaceFunction(ast);
+  // ConReplaceNested.replaceNestedConditionals(ast);
 
 
   // Method Call Simplifier module
-  parameterizeMethod.searchParameterizeMethods(ast);
-  parameterizeMethod.matchDuplicatemethods(ast);
-  removeParameters.searchRemoveParameter(ast);
-  renameShortNames.searchMethodsName(ast);
-  renamePoorNames.searchMethodsName(ast);
+  // parameterizeMethod.searchParameterizeMethods(ast);
+  // parameterizeMethod.matchDuplicatemethods(ast);
+  // removeParameters.searchRemoveParameter(ast);
+  // renameShortNames.searchMethodsName(ast);
+  // renamePoorNames.searchMethodsName(ast);
 
 
 
