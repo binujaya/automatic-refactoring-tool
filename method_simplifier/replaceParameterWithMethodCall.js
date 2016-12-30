@@ -5,25 +5,15 @@ var estraverse = require('estraverse');
 var escodegen = require('escodegen');
 var jsonfile = require('jsonfile');
 
-var code = 'function getFees(){} function getSeasonalDiscount(){}  function discountedPrice(basePrice,seasonDiscount,fees){} var fees = getFees(); var basePrice = quantity * itemPrice; var seasonDiscount = getSeasonalDiscount(); var finalPrice = discountedPrice(basePrice,seasonDiscount,fees);';
+/* //Test Script 
+var code = 'function getFees(){} function getSeasonalDiscount(){}  var discountedPrice = function(arg1,arg2,arg3){}; var fees = getFees(); var basePrice = quantity * itemPrice; var seasonDiscount = getSeasonalDiscount(); var finalPrice = discountedPrice(basePrice,seasonDiscount,fees);';
 var ast = esprima.parse(code);	
-console.log(JSON.stringify(ast, null, 4));
+//console.log(JSON.stringify(ast, null, 4));
 var bCode = escodegen.generate(ast);
-console.log(bCode);
+console.log("Before Reactoring");
+console.log(bCode); */
 
 var len = 0;
-
-var getCalleeCount = function(ast,name){
-	var count = 0;
-	estraverse.traverse(ast, {
-		enter : function (node,parent) {
-			if(node.type =='CallExpression' && node.callee.type == 'Identifier' && node.callee.name == name){
-				count++;
-			}
-		}
-	});
-	return count;
-}
 
 var getArguments = function(nodeObject){
 	var argArray = [];
@@ -54,18 +44,18 @@ var checkArguments = function(ast,arguments){
 	return removeParameter;
 }
 
-var variableUsage = function(ast,name){
-	var count = 0;
-	estraverse.traverse(ast, {
+var removable = function(nodeObj){
+	var falg = false;
+	estraverse.traverse(nodeObj, {
 		enter : function (node,parent) {
-			if(node.type == 'Identifier' && node.name == name){
-				if(parent.type == 'VariableDeclarator' || parent.type == 'CallExpression'){
-					count++;
+			if(node.type == 'VariableDeclaration'){
+				if(node.declarations[0].init.type == 'CallExpression' && node.declarations[0].init.arguments.length == 0){
+					falg = true;
 				}
 			}
 		}
 	});
-	return count;
+	return falg;
 }
 
 var isGlobalVaribale = function(ast,name){
@@ -82,18 +72,30 @@ var isGlobalVaribale = function(ast,name){
 	return temp;
 }
 
-var removable = function(nodeObj){
-	var falg = false;
-	estraverse.traverse(nodeObj, {
+var variableUsage = function(ast,name){
+	var count = 0;
+	estraverse.traverse(ast, {
 		enter : function (node,parent) {
-			if(node.type == 'VariableDeclaration'){
-				if(node.declarations[0].init.type == 'CallExpression' && node.declarations[0].init.arguments.length == 0){
-					falg = true;
+			if(node.type == 'Identifier' && node.name == name){
+				if(parent.type == 'VariableDeclarator' || parent.type == 'CallExpression'){
+					count++;
 				}
 			}
 		}
 	});
-	return falg;
+	return count;
+}
+
+var getCalleeCount = function(ast,name){
+	var count = 0;
+	estraverse.traverse(ast, {
+		enter : function (node,parent) {
+			if(node.type =='CallExpression' && node.callee.type == 'Identifier' && node.callee.name == name){
+				count++;
+			}
+		}
+	});
+	return count;
 }
 
 var removePara = function(nodeObj,paraList){
@@ -145,6 +147,23 @@ var changeMethodBody = function(ast,name,removeParameter){
 	});
 }
 
+var garbageDeleter = function(deleteNodeList,ast){
+	var indexes = Object.keys(deleteNodeList);
+	indexes.forEach(function(index) {
+		var garbageNode = deleteNodeList[index];
+		var name = garbageNode.declarations[0].id.name
+		estraverse.replace(ast, {
+			enter: function (node,parent){
+				if(node.type == 'VariableDeclaration' && parent != null && parent.type == 'Program' ){
+					if(node.declarations[0].id.type == 'Identifier' && node.declarations[0].id.name == name){
+						return this.remove();
+					}
+				}	
+			}
+		});
+	});
+}
+
 var refacController = function(ast){
 	var argList = [];
 	estraverse.traverse(ast, {
@@ -158,6 +177,15 @@ var refacController = function(ast){
 				var removeParameter = checkArguments(ast,arguments);
 				if(removeParameter != null){
 					changeMethodBody(ast,name,removeParameter);
+					var removeIndx= Object.keys(removeParameter);
+					removeIndx.forEach(function(arg) {
+						argList.push(node.arguments[arg].name);
+					});
+					argList.forEach(function(arg) {
+						var idx = node.arguments.indexOf(arg);
+						node.arguments.splice(idx, 1);
+					});
+					garbageDeleter(removeParameter,ast);
 				}
 			}
 		}
@@ -169,8 +197,22 @@ var refacController = function(ast){
 	
 }
 
+module.exports = {
+  refacController: refacController,
+  getCalleeCount:getCalleeCount,
+  getArguments : getArguments,
+  checkArguments:checkArguments,
+  removable:removable,
+  isGlobalVaribale:isGlobalVaribale,
+  variableUsage: variableUsage,
+  removePara:removePara,
+  changeMethodBody:changeMethodBody,
+  garbageDeleter:garbageDeleter
+};
+
+/* //Test Script
 refacController(ast);
 console.log('\n After Refactoring\n');
 //console.log(JSON.stringify(ast, null, 4));
 var refactoredCode = escodegen.generate(ast);
-console.log(refactoredCode); 
+console.log(refactoredCode);  */
