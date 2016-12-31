@@ -1,5 +1,4 @@
 node_modules
-inputFile*.js
 outputFile*.js
 AST.js
 coverage
