@@ -20,7 +20,8 @@
     "escodegen": "^1.8.0",
     "esprima": "^2.7.2",
     "estraverse": "^4.2.0",
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "multer": "^1.2.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",

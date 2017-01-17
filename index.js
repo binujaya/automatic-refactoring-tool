@@ -26,7 +26,7 @@ app.post('/sourcecode', function (req, res) {
 
 })
 
-fs.readFile('./method_composer/inputFile8.js', 'utf8', function (err,data) {
+fs.readFile('./method_composer/inputFile2.js', 'utf8', function (err,data) {
   if (err) {
     throw err;
   }
