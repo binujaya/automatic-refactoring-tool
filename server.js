@@ -2,8 +2,19 @@ var express = require('express');
 var app = express();
 var path = require('path');
 var multer = require('multer');
-var upload = multer({dest: 'uploads/'});
 var fs = require('fs');
+
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'files');
+  },
+  filename: function (req, file, cb) {
+    cb(null, 'inputFile.js');
+  }
+});
+var upload = multer({ storage: storage });
+
 
 var esprima = require('esprima');
 var escodegen = require('escodegen');
@@ -20,6 +31,8 @@ var renamePoorNames = require('./method_simplifier/renamePoorName.js');
 
 var refactoredCode, ast;
 
+
+
 app.use(express.static(path.join(__dirname,'public')));
 
 app.get('/', function (req, res) {
@@ -27,11 +40,10 @@ app.get('/', function (req, res) {
 });
 
 app.post('/send_file', upload.single('nonstcode'), function (req, res) {
-  fs.readFile(req.file, 'utf8', function (err,data) {
+  fs.readFile(req.file.path, 'utf8', function (err,data) {
     if (err) {
       throw err;
     }
-
     ast = esprima.parse(data);
 
     //method composer module
@@ -56,14 +68,26 @@ app.post('/send_file', upload.single('nonstcode'), function (req, res) {
     // renamePoorNames.searchMethodsName(ast);
 
     refactoredCode = escodegen.generate(ast);
+
+    fs.writeFile('./files/ast.js', JSON.stringify(ast, null, 4), function (err) {
+      if (err) {
+        throw err;
+      }
+    });
+    fs.writeFile('./files/refactoredFile.js', refactoredCode, function (err) {
+      if (err) {
+        throw err;
+      }
+    });
+    res.send('success');
   });
 });
 
 app.get('/ast', function (req,res) {
-  res.send(ast);
-})
+  res.sendFile(path.join(__dirname+'/files/ast.js'));
+});
 app.get('/refactoredcode', function (req, res) {
-  res.send(refactoredCode);
+  res.sendFile(path.join(__dirname+'/files/refactoredFile.js'));
 });
 
 app.listen(1337);
