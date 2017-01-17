@@ -1,3 +1,45 @@
+var i = 0;
+var control = true;
+while (control) {
+    printStar(i);
+    i++;
+    if (i === 5) control = false;
+
+}
+
+var j = 0;
+var value = true;
+var text;
+do {
+    text = "The number is ".concat(j);
+    j++;
+    if (j === 6) {
+        value = false;
+
+    }
+}
+while (value);
+
+var i = 0;
+var control = true;
+while (control) {
+    printStar(i);
+    i++;
+    if (i === 5)
+        break;
+}
+var j = 0;
+var value = true;
+var text;
+do {
+    text = "The number is ".concat(j);
+    j++;
+    if (j === 6) {
+        break;
+    }
+} while (value);
+
+
 //original code
 function getStudentDetails() {
     var name = "akila"
@@ -6,7 +48,7 @@ function getStudentDetails() {
     var indexNo = getIndexNumber(name);
     var marks = getGrade(marks);
     var fees = calculateFees(income);
-    printValues(indexNo,marks,fees);
+    printValues(indexNo, marks, fees);
 
 }
 
@@ -41,13 +83,13 @@ function calculateFees(amount) {
 }
 
 function getIndexNumber(name) {
-    var found = false; 
+    var found = false;
     var index;
     var people = ["anura", "akila", "rusiru", "John"];
     for (var i = 0; i < people.length; i++) {
         if (!found) {
             if (people[i] === name) {
-                index=i;
+                index = i;
                 found = true;
             }
 
@@ -57,11 +99,11 @@ function getIndexNumber(name) {
 
 }
 
-function printTotal(total){
-    console.log(total);    
+function printTotal(total) {
+    console.log(total);
 }
 
-function printValues(indexNo,marks,fees){
-    console.log(indexNo,marks,fees);    
+function printValues(indexNo, marks, fees) {
+    console.log(indexNo, marks, fees);
 }
 getStudentDetails();

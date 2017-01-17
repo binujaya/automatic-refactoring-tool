@@ -88,7 +88,7 @@ var ifTraversal = function (array) {
     for (i in array) {
         var node = array[i].value;
         var key = array[i].key;
-        console.log("node is", key);
+        //console.log("node is", key);
         var k = 0;
         while (node !== undefined) {
 
@@ -173,7 +173,7 @@ var removeDuplicates = function (ast) {
                 //Go upaward until meet node.type === "IfStatement" && parent.type === "Program"
                 //check all have same function name
                 //if remove that nodes and insert at once after if statement
-                console.log("index is", (parent.body).indexOf(node));
+               // console.log("index is", (parent.body).indexOf(node));
                 //ifArray.push(node);
                 var object = {
                     key: (parent.body).indexOf(node),
@@ -217,7 +217,7 @@ var removeDuplicates = function (ast) {
 
                     //parent.body.splice(index + 1, 0, duplicateRemovedArray.shift());
                     // parent.body.splice(position + 1, 0, element);
-                    console.log("position is", position);
+                   // console.log("position is", position);
                     node.body.splice(position, 0, element);
                     //eka traversal ekak liyala eken remove karala apahu danna one..
 
@@ -227,7 +227,7 @@ var removeDuplicates = function (ast) {
     };
     for (element in duplicateRemovedArray) {
         var position = element * 1 + (duplicateRemovedArray[element].key) * 1 + 1;
-        console.log("position is", position);
+        //console.log("position is", position);
         insertNode(bst, position, duplicateRemovedArray[element].value);
 
     }

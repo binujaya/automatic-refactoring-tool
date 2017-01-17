@@ -16,10 +16,12 @@ var data = "var discount = true;var amount;if(discount){ amount = price * 0.9;pr
       
         
         
-expect(code.replace(/(\r\n|\n|\r)/gm,"").replace(/ /g,'')).to.equal("var discount = true;\nvar amount;\nif (discount)  {\n   amount = price * 0.9;\n} else {\n     amount = price;\n}\n".replace(/(\r\n|\n|\r)/gm,"").replace(/ /g,'')); 
+expect(code.replace(/(\r\n|\n|\r)/gm,"").replace(/ /g,'')).to.equal("var discount = true;\nvar amount;\nif (discount)  {\n   amount = price * 0.9;\n} else {\n     amount = price;printBill();\n}\n".replace(/(\r\n|\n|\r)/gm,"").replace(/ /g,'')); 
     })
   })
 
   
   
 //./node_modules/mocha/bin/mocha condition_simplifier/test/testingRemoveDuplicates.js
+//correct
+// .\node_modules\.bin\mocha condition_simplifier\test\testingRemoveDuplicates.js
