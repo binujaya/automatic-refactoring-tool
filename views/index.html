@@ -26,13 +26,15 @@
     <![endif]-->
 
 	<script>
-
+		
+		var selectedFile,refactMethods;
+		
 		jQuery(document).ready(function() {
 			$("#alert").hide();
 			$("#inputCode").text("");
 			$("#refactoredCode").text("");
 			jQuery("input:file").change(function(event) {
-				var selectedFile = $('#fileinput')[0].files[0];
+				selectedFile = $('#fileinput')[0].files[0];
 				$("#alert").show();
 				if (selectedFile) {
 					if(selectedFile.type == 'application/javascript'){
@@ -78,7 +80,7 @@
 			$('input[name="methods"]').attr('checked', false);
 			$("#refactAlert").hide();
 			$("#refactBtn").click(function(){
-				var refactMethods = $('input[name="methods"]:checked').map(function() {
+				refactMethods = $('input[name="methods"]:checked').map(function() {
 					return this.value;
 				}).get();
 				if(refactMethods.length >= 1){
@@ -87,8 +89,8 @@
 						$('#confirm').modal({ backdrop: 'static', keyboard: false })
 							.one('click', '#okBtn', function() {
 							$('input[name="methods"]').attr('checked', false);
-							// start coding here
 							console.log("start");
+							sendFile(selectedFile);
 						});
 					}
 					else{
@@ -115,6 +117,43 @@
 			};
 			reader.readAsText(file);
 		}
+		
+		function sendFile(file){
+			var fd = new FormData();
+			fd.append("nonstcode", file);
+			
+			$.ajax({
+				url: '/send_file',
+				type: "POST",
+				data: fd,
+				processData: false,
+				contentType: false,
+				success: function(response) {
+					if(response == 'success'){
+						console.log(response);
+						getRefactoredFile();
+					}
+				},
+				error: function(jqXHR, textStatus, errorMessage) {
+					console.log(errorMessage); // Optional
+				}
+			});
+		}
+		
+		function getRefactoredFile(){
+			$.ajax({
+				url: '/refactoredcode',
+				type: "GET",
+				success: function(response) {
+					console.log(response);
+					$("#refactoredCode").append(response);
+				},
+				error: function(jqXHR, textStatus, errorMessage) {
+					console.log(errorMessage); // Optional
+				}
+			});
+		}
+		
 
 	</script>
 
@@ -169,7 +208,7 @@
 					<p id="fileSize"></p>
 				</div>
 				<div>
-					<input type="file" id="fileinput" class="btn btn-primary"/>
+					<input type="file" id="fileinput"  class="btn btn-primary"/>
 				</div>
             </div>
 			<div class="col-lg-6 portfolio-item">
