@@ -77,7 +77,7 @@
 		})
 
 		$(document).ready(function() {
-			$('input[name="methods"]').attr('checked', false);
+			$('input[name="methods"]').attr('checked', true);
 			$("#refactAlert").hide();
 			$("#refactBtn").click(function(){
 				refactMethods = $('input[name="methods"]:checked').map(function() {
@@ -106,6 +106,8 @@
 				}
 			});
 		});
+		
+		
 
 		function readFile(file){
 			var reader = new FileReader();
@@ -135,7 +137,7 @@
 					}
 				},
 				error: function(jqXHR, textStatus, errorMessage) {
-					console.log(errorMessage); // Optional
+					console.log(errorMessage); 
 				}
 			});
 		}
@@ -149,7 +151,26 @@
 					$("#refactoredCode").append(response);
 				},
 				error: function(jqXHR, textStatus, errorMessage) {
-					console.log(errorMessage); // Optional
+					console.log(errorMessage); 
+				}
+			});
+		}
+		
+		function sentReactorings(refactMethods){
+			var fd = new FormData();
+			fd.append("body", refactMethods);
+			
+			$.ajax({
+				url: '/send_file',
+				type: "POST",
+				data: fd,
+				processData: false,
+				contentType: false,
+				success: function(response) {
+					console.log(response);
+				},
+				error: function(jqXHR, textStatus, errorMessage) {
+					console.log(errorMessage); 
 				}
 			});
 		}
@@ -219,7 +240,6 @@
 					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Refactoring Methods
 					<span class="caret"></span></button>
 					<ul class="dropdown-menu" >
-						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="EM">Extracting methods</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="AIM">Adding inline methods</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="EV">Extracting variables</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RAP">Removing assignment to parameters</label></li>
@@ -235,7 +255,8 @@
 				</div>
 				<div style="padding-top: 10px;">
 					<button type="button" class="btn btn-primary" id="refactBtn">Refactor</button>
-					<button type="button" class="btn btn-primary" id="refactBtn">Download</button>
+					<input type="button" class="btn btn-primary" id="downloadBtn" value="Download file" >
+					
 				</div>
 				<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 					<div class="modal-dialog">
