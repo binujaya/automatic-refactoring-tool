@@ -140,22 +140,13 @@
 			});
 		}
 		
-		function readRefactorFile(code){
-		
-			var lines = code.split('\n');
-			for(var line = 0; line < lines.length; line++){
-				$("#refactoredCode").append(lines[line]);
-			}
-			
-		}
-		
 		function getRefactoredFile(){
 			$.ajax({
 				url: '/refactoredcode',
 				type: "GET",
 				success: function(response) {
 					console.log(response);
-					readRefactorFile(response);
+					$("#refactoredCode").append(response);
 				},
 				error: function(jqXHR, textStatus, errorMessage) {
 					console.log(errorMessage); // Optional
