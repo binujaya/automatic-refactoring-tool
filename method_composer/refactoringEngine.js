@@ -44,7 +44,7 @@ var removeAssignToParam = function(ast) {
 
         if (loopNode===undefined && (paramInAssignment || paramInUpdate)) {
           oldName = node.left ? node.left.name : node.argument.name;
-          newName = nameGenerator.genericName('comp');
+          newName = nameGenerator.genericName();
           newVar = varGenerator.initializeVarToVar(newName, oldName);
           parentIndex = scopeTracker.getCurrentBlock().indexOf(parent);
           scopeTracker.getCurrentBlock().splice(parentIndex,0,newVar);
@@ -56,7 +56,7 @@ var removeAssignToParam = function(ast) {
 
         if (loopNode && (paramInAssignment || paramInUpdate)) {
           oldName = node.left ? node.left.name : node.argument.name;
-          newName = nameGenerator.genericName('comp');
+          newName = nameGenerator.genericName();
           newVar = varGenerator.initializeVarToVar(newName, oldName);
           parentIndex = scopeTracker.getParentBlock().indexOf(loopNode);
           scopeTracker.getParentBlock().splice(parentIndex,0,newVar);
@@ -135,7 +135,7 @@ var extractVariables = function (ast) {
       scopeTracker.push(node);
       if (scopeTracker.find('IfStatement') && parent.type=='LogicalExpression') {
         if (node.type != 'LogicalExpression' && node.maxSubtreeDepth > 1) {
-          var newName = nameGenerator.genericName('comp');
+          var newName = nameGenerator.genericName();
           var newVarInitialization = varGenerator.initializeVarToBlock(newName, JSON.stringify(node, null, 4));
           var newVarInstance = varGenerator.newInstance(newName);
           scopeTracker.getCurrentBlock().splice(0,0,newVarInitialization);
@@ -146,7 +146,7 @@ var extractVariables = function (ast) {
     leave: function (node, parent) {
       scopeTracker.pop();
       if (parent.type=='BinaryExpression' && node.maxSubtreeDepth > 1) {
-        var newName = nameGenerator.genericName('comp');
+        var newName = nameGenerator.genericName();
         var newVarInitialization = varGenerator.initializeVarToBlock(newName, JSON.stringify(node, null, 4));
         var newVarInstance = varGenerator.newInstance(newName);
         scopeTracker.getCurrentBlock().splice(0,0,newVarInitialization);
@@ -218,7 +218,7 @@ var extractMethods = function (ast) {
             for (var item of dependentLines[block]) {
               newMethodBody.push(node.body.body[item]);
             }
-            var newMethodName = nameGenerator.genericName('comp');
+            var newMethodName = nameGenerator.genericName();
             var newMethod = methodGenerator.nonReturnMethod(newMethodName, JSON.stringify(newMethodBody, null, 4));
             scopeTracker.getCurrentBlock().splice(0,0,newMethod);
           }
