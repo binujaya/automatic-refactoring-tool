@@ -12,24 +12,24 @@ var removeParameters = require('./method_simplifier/removeParameter.js');
 var renameShortNames = require('./method_simplifier/method_rename.js');
 var renamePoorNames = require('./method_simplifier/renamePoorName.js');
 
-var start = function (inputCode) {
+var start = function (inputCode,options) {
   var refactoredCode, ast;
   ast = esprima.parse(inputCode);
 
   depthCalculator.addDepthToNodes(ast);
-  MethodComposer.removeAssignToParam(ast);
-  MethodComposer.addInlineMethods(ast); // TODO: assignments in if conditions must come one level out of scope
+  if (options) MethodComposer.removeAssignToParam(ast);
+  if (options) MethodComposer.addInlineMethods(ast); // TODO: assignments in if conditions must come one level out of scope
   // ConConsolidateConditional.consolidateConditionalExpression(ast);//conditionalSimplifier
-  MethodComposer.extractVariables(ast);
+  if (options) MethodComposer.extractVariables(ast);
   // MethodComposer.extractMethods(ast);
-  ConConsolidateDuplicate.removeDuplicates(ast);
-  ConRemoveFlags.replaceFunction(ast);
-  ConReplaceNested.replaceNestedConditionals(ast);
-  parameterizeMethod.searchParameterizeMethods(ast);
-  parameterizeMethod.matchDuplicatemethods(ast);
-  removeParameters.searchRemoveParameter(ast);
-  renameShortNames.searchMethodsName(ast);
-  renamePoorNames.searchMethodsName(ast);
+  if (options) ConConsolidateDuplicate.removeDuplicates(ast);
+  if (options) ConRemoveFlags.replaceFunction(ast);
+  if (options) ConReplaceNested.replaceNestedConditionals(ast);
+  if (options) parameterizeMethod.searchParameterizeMethods(ast);
+  if (options) parameterizeMethod.matchDuplicatemethods(ast);
+  if (options) removeParameters.searchRemoveParameter(ast);
+  if (options) renameShortNames.searchMethodsName(ast);
+  if (options) renamePoorNames.searchMethodsName(ast);
 
   refactoredCode = escodegen.generate(ast);
   return {

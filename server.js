@@ -27,8 +27,7 @@ app.post('/send_file', upload.single('nonstcode'), function (req, res) {
     if (err) {
       throw err;
     }
-
-    var output = refactoringManager.start(data);
+    var output = refactoringManager.start(data,req.body);
     var ast = output.ast;
     var refactoredCode = output.refactoredCode;
 
