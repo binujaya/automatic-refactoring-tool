@@ -101,7 +101,6 @@ var deleteMethodDefinition = function (ast, methodName) {
   });
 };
 
-// NOTE: This is not used. Can be used when selecting method definitions from scope tracker
 var isMethodDefinitionOf = function (methodName) {
   return function (node) {
     if (node.type=='VariableDeclaration' && node.declarations[0].init.type=='FunctionExpression' && node.declarations[0].id.name==methodName) {

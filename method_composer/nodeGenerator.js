@@ -7,7 +7,6 @@ var nameGenerator = {
 };
 
 var varGenerator = {
-  // NOTE: declareVar is not used
   declareVar: function(varName) {
     return JSON.parse(`{
         "type": "VariableDeclaration",

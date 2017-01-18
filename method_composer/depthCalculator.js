@@ -25,7 +25,6 @@ var addDepthToNodes = function(ast) {
       }
     },
     leave: function (node, parent) {
-      // NOTE: maxSubtreeDepth does not cater well for broad yet shallow subtrees
       if (node.maxSubtreeDepth===undefined) {
         node.maxSubtreeDepth = 0;
       }
