@@ -1,10 +1,11 @@
 var estraverse = require('estraverse');
-var scopeChain = require('./scopeChain.js').scopeChain;
-var util = require('./util.js');
-var nameGenerator = util.nameGenerator;
-var varGenerator = util.varGenerator;
-var methodGenerator = util.methodGenerator;
+var scopeTracker = require('./scopeTracker.js').scopeTracker;
+var nodeGenerator = require('./nodeGenerator.js');
+var nameGenerator = nodeGenerator.nameGenerator;
+var varGenerator = nodeGenerator.varGenerator;
+var methodGenerator = nodeGenerator.methodGenerator;
 
+//---------------------------------Parameter Assignment Fixer---------------------------------
 
 var renameOccurence = function(ast, varName, newName) {
   estraverse.traverse(ast, {
@@ -16,57 +17,12 @@ var renameOccurence = function(ast, varName, newName) {
   });
 };
 
-
-var trivialNodes = {
-  BlockStatement: 'BlockStatement',
-  VariableDeclarator: 'VariableDeclarator'
-};
-
-var isTrivialNode = function(node) {
-  return Object.keys(trivialNodes).some(function(key) {
-    return key == node.type;
-  });
-};
-
-var addDepthToNodes = function(ast) {
-  estraverse.traverse(ast, {
-    enter: function(node, parent) {
-      if (!parent) {
-        node.depthLevel = 0;
-      }
-      else if (isTrivialNode(node)) {
-        node.depthLevel = parent.depthLevel;
-      }
-      else {
-        node.depthLevel = parent.depthLevel + 1;
-      }
-    },
-    leave: function (node, parent) {
-      // NOTE: maxSubtreeDepth does not cater well for broad yet shallow subtrees
-      if (node.maxSubtreeDepth===undefined) {
-        node.maxSubtreeDepth = 0;
-      }
-      if (parent && parent.maxSubtreeDepth===undefined) {
-        parent.maxSubtreeDepth = 0;
-      }
-      if (parent && parent.maxSubtreeDepth < node.maxSubtreeDepth+1) {
-        if (isTrivialNode(node)) {
-          parent.maxSubtreeDepth = node.maxSubtreeDepth;
-        }
-        else {
-          parent.maxSubtreeDepth = node.maxSubtreeDepth+1;
-        }
-      }
-    }
-  });
-};
-
 var removeAssignToParam = function(ast) {
   var funcParams = [];
   var paramCount = [];
   estraverse.traverse(ast, {
     enter: function(node, parent) {
-      scopeChain.push(node);
+      scopeTracker.push(node);
       if (node.type == 'FunctionExpression' && node.params.length != 0) {
         var count = 0;
         funcParams = funcParams.concat(node.params.map(function(param) {
@@ -78,11 +34,11 @@ var removeAssignToParam = function(ast) {
       if (funcParams.length != 0) {
         var paramInAssignment = (node.type == 'AssignmentExpression' && funcParams.indexOf(node.left.name)!=-1);
         var paramInUpdate = (node.type =='UpdateExpression' && funcParams.indexOf(node.argument.name)!=-1);
-        var findFor = scopeChain.find('ForStatement');
-        var findWhile = scopeChain.find('WhileStatement');
-        var findForIn = scopeChain.find('ForInStatement');
-        var findForOf = scopeChain.find('ForOfStatement');
-        var findDoWhile = scopeChain.find('DoWhileStatement');
+        var findFor = scopeTracker.find('ForStatement');
+        var findWhile = scopeTracker.find('WhileStatement');
+        var findForIn = scopeTracker.find('ForInStatement');
+        var findForOf = scopeTracker.find('ForOfStatement');
+        var findDoWhile = scopeTracker.find('DoWhileStatement');
         var loopNode = findFor || findWhile || findForIn || findForOf || findDoWhile;
         var oldName, newName, newVar, parentIndex, newVarIndex;
 
@@ -90,11 +46,11 @@ var removeAssignToParam = function(ast) {
           oldName = node.left ? node.left.name : node.argument.name;
           newName = nameGenerator.genericName('comp');
           newVar = varGenerator.initializeVarToVar(newName, oldName);
-          parentIndex = scopeChain.getCurrentBlock().indexOf(parent);
-          scopeChain.getCurrentBlock().splice(parentIndex,0,newVar);
+          parentIndex = scopeTracker.getCurrentBlock().indexOf(parent);
+          scopeTracker.getCurrentBlock().splice(parentIndex,0,newVar);
           newVarIndex = parentIndex;
-          for (var i = newVarIndex+1; i<scopeChain.getCurrentBlock().length; i++) {
-            renameOccurence(scopeChain.getCurrentBlock()[i],oldName,newName);
+          for (var i = newVarIndex+1; i<scopeTracker.getCurrentBlock().length; i++) {
+            renameOccurence(scopeTracker.getCurrentBlock()[i],oldName,newName);
           }
         }
 
@@ -102,24 +58,26 @@ var removeAssignToParam = function(ast) {
           oldName = node.left ? node.left.name : node.argument.name;
           newName = nameGenerator.genericName('comp');
           newVar = varGenerator.initializeVarToVar(newName, oldName);
-          parentIndex = scopeChain.getParentBlock().indexOf(loopNode);
-          scopeChain.getParentBlock().splice(parentIndex,0,newVar);
+          parentIndex = scopeTracker.getParentBlock().indexOf(loopNode);
+          scopeTracker.getParentBlock().splice(parentIndex,0,newVar);
           newVarIndex = parentIndex;
-          for (var j = newVarIndex+1; j<scopeChain.getParentBlock().length; j++) {
-            renameOccurence(scopeChain.getParentBlock()[j],oldName,newName);
+          for (var j = newVarIndex+1; j<scopeTracker.getParentBlock().length; j++) {
+            renameOccurence(scopeTracker.getParentBlock()[j],oldName,newName);
           }
         }
       }
     },
 
     leave: function(node, parent) {
-      scopeChain.pop();
+      scopeTracker.pop();
       if (node.type == 'FunctionExpression' && node.params.length != 0) {
         funcParams.splice(paramCount.pop());
       }
     }
   });
 };
+
+//---------------------------------Inline Method Generator---------------------------------
 
 var replaceCalleeWithMethodBody = function (ast, calleeName, methodBody) {
   estraverse.replace(ast, {
@@ -143,7 +101,7 @@ var deleteMethodDefinition = function (ast, methodName) {
   });
 };
 
-// NOTE: This is not used. May be used when selecting method definitions from scope chain
+// NOTE: This is not used. Can be used when selecting method definitions from scope tracker
 var isMethodDefinitionOf = function (methodName) {
   return function (node) {
     if (node.type=='VariableDeclaration' && node.declarations[0].init.type=='FunctionExpression' && node.declarations[0].id.name==methodName) {
@@ -152,54 +110,54 @@ var isMethodDefinitionOf = function (methodName) {
   };
 };
 
-
 var addInlineMethods = function (ast) {
   estraverse.traverse(ast, {
     enter: function (node, parent) {
-      scopeChain.push(node);
+      scopeTracker.push(node);
       if (node.type=='FunctionExpression' && node.body.body.length==1) {
         var methodBody = node.body.body[0].argument;
         var methodName = parent.id.name;
         replaceCalleeWithMethodBody(ast, methodName, methodBody);
-        // var methodDefinition = scopeChain.chain.filter(isMethodDefinitionOf(methodName)).pop();
+        // var methodDefinition = scopeTracker.chain.filter(isMethodDefinitionOf(methodName)).pop();
         deleteMethodDefinition(ast, methodName);
       }
     },
     leave: function (node, parent) {
-      scopeChain.pop();
+      scopeTracker.pop();
     }
   });
 };
 
+//---------------------------------Variable Extractor---------------------------------
 
 var extractVariables = function (ast) {
   estraverse.replace(ast, {
     enter: function (node, parent) {
-      scopeChain.push(node);
-      if (scopeChain.find('IfStatement') && parent.type=='LogicalExpression') {
+      scopeTracker.push(node);
+      if (scopeTracker.find('IfStatement') && parent.type=='LogicalExpression') {
         if (node.type != 'LogicalExpression' && node.maxSubtreeDepth > 1) {
           var newName = nameGenerator.genericName('comp');
           var newVarInitialization = varGenerator.initializeVarToBlock(newName, JSON.stringify(node, null, 4));
           var newVarInstance = varGenerator.newInstance(newName);
-          scopeChain.getCurrentBlock().splice(0,0,newVarInitialization);
+          scopeTracker.getCurrentBlock().splice(0,0,newVarInitialization);
           return newVarInstance;
         }
       }
     },
     leave: function (node, parent) {
-      scopeChain.pop();
+      scopeTracker.pop();
       if (parent.type=='BinaryExpression' && node.maxSubtreeDepth > 1) {
         var newName = nameGenerator.genericName('comp');
         var newVarInitialization = varGenerator.initializeVarToBlock(newName, JSON.stringify(node, null, 4));
         var newVarInstance = varGenerator.newInstance(newName);
-        scopeChain.getCurrentBlock().splice(0,0,newVarInitialization);
+        scopeTracker.getCurrentBlock().splice(0,0,newVarInitialization);
         return newVarInstance;
       }
     }
   });
 };
 
-
+//---------------------------------Method Extractor---------------------------------
 
 var getIdentifierNamesOfSubtree = function(ast) {
   var identifiers = [];
@@ -243,7 +201,7 @@ var getDependentLinesFromIdentifiers = function (identifiers) {
 var extractMethods = function (ast) {
   estraverse.traverse(ast, {
     enter: function (node, parent) {
-      scopeChain.push(node);
+      scopeTracker.push(node);
       if (node.type=='FunctionExpression' && node.body.body.length>3) {
         var identifiers = [];
         var numOfLines = node.body.body.length;
@@ -263,21 +221,19 @@ var extractMethods = function (ast) {
             }
             var newMethodName = nameGenerator.genericName('comp');
             var newMethod = methodGenerator.nonReturnMethod(newMethodName, JSON.stringify(newMethodBody, null, 4));
-            scopeChain.getCurrentBlock().splice(0,0,newMethod);
+            scopeTracker.getCurrentBlock().splice(0,0,newMethod);
           }
         }
       }
     },
     leave: function (node, parent) {
-      scopeChain.pop();
+      scopeTracker.pop();
     }
   });
 };
 
-
 module.exports = {
   renameOccurence: renameOccurence,
-  addDepthToNodes: addDepthToNodes,
   removeAssignToParam: removeAssignToParam,
   addInlineMethods: addInlineMethods,
   extractVariables: extractVariables,

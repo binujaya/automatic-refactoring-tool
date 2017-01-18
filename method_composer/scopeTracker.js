@@ -1,4 +1,4 @@
-var scopeChain = {
+var scopeTracker = {
   chain: [],
   blocks: [],
   push: function(node) {
@@ -30,5 +30,5 @@ var scopeChain = {
 };
 
 module.exports = {
-  scopeChain: scopeChain
+  scopeTracker: scopeTracker
 };
