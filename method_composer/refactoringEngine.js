@@ -40,18 +40,29 @@ var removeAssignToParam = function(ast) {
         var findForOf = scopeTracker.find('ForOfStatement');
         var findDoWhile = scopeTracker.find('DoWhileStatement');
         var loopNode = findFor || findWhile || findForIn || findForOf || findDoWhile;
+        var ifNode = scopeTracker.find('IfStatement');
         var oldName, newName, newVar, parentIndex, newVarIndex;
 
         if (loopNode===undefined && (paramInAssignment || paramInUpdate)) {
           oldName = node.left ? node.left.name : node.argument.name;
           newName = nameGenerator.genericName();
           newVar = varGenerator.initializeVarToVar(newName, oldName);
-          parentIndex = scopeTracker.getCurrentBlock().indexOf(parent);
-          scopeTracker.getCurrentBlock().splice(parentIndex,0,newVar);
-          newVarIndex = parentIndex;
-          for (var i = newVarIndex+1; i<scopeTracker.getCurrentBlock().length; i++) {
-            renameOccurence(scopeTracker.getCurrentBlock()[i],oldName,newName);
+          if (ifNode) {
+            scopeTracker.getParentBlock().splice(0,0,newVar);
+            newVarIndex=0;
+            for (var i = newVarIndex+1; i<scopeTracker.getParentBlock().length; i++) {
+              renameOccurence(scopeTracker.getParentBlock()[i],oldName,newName);
+            }
           }
+          else {
+            parentIndex = scopeTracker.getCurrentBlock().indexOf(parent);
+            scopeTracker.getCurrentBlock().splice(parentIndex,0,newVar);
+            newVarIndex = parentIndex;
+            for (var ii = newVarIndex+1; ii<scopeTracker.getCurrentBlock().length; ii++) {
+              renameOccurence(scopeTracker.getCurrentBlock()[ii],oldName,newName);
+            }
+          }
+
         }
 
         if (loopNode && (paramInAssignment || paramInUpdate)) {
