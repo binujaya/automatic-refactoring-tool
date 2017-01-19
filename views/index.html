@@ -26,9 +26,9 @@
     <![endif]-->
 
 	<script>
-
+		
 		var selectedFile,refactMethods;
-
+		
 		jQuery(document).ready(function() {
 			$("#alert").hide();
 			$("#inputCode").text("");
@@ -80,10 +80,8 @@
 			$('input[name="methods"]').attr('checked', true);
 			$("#refactAlert").hide();
 			$("#refactBtn").click(function(){
-				refactMethods = $('input[name="methods"]').map(function() {
-          if (this.checked) return this.value;
-          else return "";
-          // return this.value;
+				refactMethods = $('input[name="methods"]:checked').map(function() {
+					return this.value;
 				}).get();
 				if(refactMethods.length >= 1){
 					if($("#inputCode").val().length > 0){
@@ -108,26 +106,26 @@
 				}
 			});
 		});
-
-
+		
+		
 
 		function readFile(file){
 			var reader = new FileReader();
 			reader.onload = function(progressEvent){
 				var lines = this.result.split('\n');
 				for(var line = 0; line < lines.length; line++){
-					$("#inputCode").append(lines[line]);
+					$("#inputCode").append(lines[line]+'<br/>');
 				}
 			};
 			reader.readAsText(file);
 		}
-
+		
 		function sendData(){
-			var reactrings = refactMethods;
+			var reactrings = JSON.stringify(refactMethods);
 			var fd = new FormData();
 			fd.append("nonstcode", selectedFile);
 			fd.append("body", reactrings);
-
+			
 			$.ajax({
 				url: '/send_file',
 				type: "POST",
@@ -141,25 +139,37 @@
 					}
 				},
 				error: function(jqXHR, textStatus, errorMessage) {
-					console.log(errorMessage);
+					console.log(errorMessage); 
 				}
 			});
 		}
-
+		
+		function readRefactoredCode(data){
+			var code = String(data);
+			console.log(code);
+			var lines = code.split('\n');
+			for(var line = 0; line < lines.length; line++){
+				$("#refactoredCode").append(lines[line] + '&#xA;');
+			}
+		}
+		
 		function getRefactoredFile(){
 			$.ajax({
 				url: '/refactoredcode',
 				type: "GET",
 				success: function(response) {
-					console.log(response);
-					$("#refactoredCode").append(response);
+					readRefactoredCode(response)
 				},
 				error: function(jqXHR, textStatus, errorMessage) {
-					console.log(errorMessage);
+					console.log(errorMessage); 
 				}
 			});
 		}
-
+		
+		function download(){
+			
+		}
+		
 	</script>
 
 </head>
@@ -235,12 +245,14 @@
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPNF">Rename Poor Names Function</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Parameterize Methods</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPMC">Replace Paramter with method call</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Remove Paramter</label></li>
+						
 					</ul>
 				</div>
 				<div style="padding-top: 10px;">
 					<button type="button" class="btn btn-primary" id="refactBtn">Refactor</button>
-					<input type="button" class="btn btn-primary" id="downloadBtn" value="Download file" >
-
+					<button type="button" class="btn btn-primary" id="downBtn" onclick="download()">Download</button>
+					
 				</div>
 				<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 					<div class="modal-dialog">
