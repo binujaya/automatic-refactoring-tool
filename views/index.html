@@ -26,8 +26,7 @@
     <![endif]-->
 
 	<script>
-
-		var selectedFile,refactMethods;
+		var selectedFile,refactMethods,inputName;
 
 		jQuery(document).ready(function() {
 			$("#alert").hide();
@@ -41,7 +40,8 @@
 						if(selectedFile.size > 0){
 							$("#alert").attr("class", "alert alert-info");
 							$("#content").text("");
-							$("#fileName").text("File Name: "+selectedFile.name);
+							inputName = selectedFile.name;
+							$("#fileName").text("File Name: "+inputName);
 							$("#fileSize").text("File Size: "+selectedFile.size +" byte");
 							$("#inputCode").text("");
 							$("#refactoredCode").text("");
@@ -169,6 +169,30 @@
 
 		function download(){
 
+			//var textToWrite = document.getElementById("refactoredCode").value;
+			var textToWrite = $("#refactoredCode").val()
+			var textFileAsBlob = new Blob([textToWrite], {type:'application/javascript'});
+			var fileNameToSaveAs = "refactored_"+inputName;
+
+			var downloadLink = document.createElement("a");
+			downloadLink.download = fileNameToSaveAs;
+			downloadLink.innerHTML = "Download File";
+			if (window.webkitURL != null){
+				// Chrome allows the link to be clicked
+				// without actually adding it to the DOM.
+				downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+			}
+			else{
+				// Firefox requires the link to be added to the DOM
+				// before it can be clicked.
+				downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+				downloadLink.onclick = destroyClickedElement;
+				downloadLink.style.display = "none";
+				document.body.appendChild(downloadLink);
+			}
+
+			downloadLink.click();
+			location.reload();
 		}
 
 	</script>
