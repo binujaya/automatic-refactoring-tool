@@ -20,7 +20,7 @@ function renameMethod(node,num,ast){
 	var pastMethodName, newMethodName;
 	if(node.id.type == 'Identifier'){
 		console.log(node.id.name + ' method name is too short.');
-		newMethodName = "RenameMethod_"+ num;
+		newMethodName = "RenameMethod"+ num;
 		pastMethodName = node.id.name;	
 		node.id.name = newMethodName;
 		console.log(pastMethodName +' rename as ' + node.id.name);

@@ -194,6 +194,10 @@
 			downloadLink.click();
 			location.reload();
 		}
+		
+		function destroyClickedElement(event){
+			document.body.removeChild(event.target);
+		}
 
 	</script>
 
@@ -270,7 +274,7 @@
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPNF">Rename Poor Names Function</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Parameterize Methods</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPMC">Replace Paramter with method call</label></li>
-						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Remove Paramter</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RP">Remove Paramter</label></li>
 
 					</ul>
 				</div>
