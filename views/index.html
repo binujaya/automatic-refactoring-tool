@@ -115,7 +115,8 @@
 			reader.onload = function(progressEvent){
 				var lines = this.result.split('\n');
 				for(var line = 0; line < lines.length; line++){
-					$("#inputCode").append(lines[line]+ '&#xA;');
+					//$("#inputCode").append(lines[line]+ '&#xA;');
+          $("#inputCode").append(lines[line]+ '<br/>');
 				}
 			};
 			reader.readAsText(file);
