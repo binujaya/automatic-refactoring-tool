@@ -18,13 +18,14 @@ console.log('\n Befor Refactoring\n');
 var code = escodegen.generate(ast);
 console.log(code + "\n");  */
 
-var flags = []; 
+//var flags = []; 
 var poorReadable = [];
 var n = 1;
 
 // check method's names are meaningful or not
 var checkedName = function(nodeObject,methodName){
 	
+	var flags = []; 
 	var name = removeNumbers(methodName);
 	
 	var upperCaseIndexs = checkUpperCase(name);
@@ -65,10 +66,11 @@ var checkedName = function(nodeObject,methodName){
 		flags.push(check);
 		/* if(!check){
 			poorReadable.push(name);
-		} */
+		}  */
 	}	
 
-	var flag = createflag();
+	var flag = createflag(flags);
+	console.log("final "+flag);
 	return flag;
 }
 
@@ -81,7 +83,9 @@ var removeNumbers = function(methodName){
 		number.push(match.index)
 	}
 	var res = methodName.substring(0,number[0]);
+	console.log(res);
 	return res;
+	
 }
 
 // return upperCase character indexs
@@ -114,18 +118,22 @@ var checkUnderscore = function(name){
 var isMeaningful = function(word){
 	var is_spelled_correctly = false;
 	is_spelled_correctly = dictionary.check(word);
-	//console.log("Is correct word? "+ is_spelled_correctly);
+	console.log("Is correct word? "+ is_spelled_correctly);
 	return is_spelled_correctly;
 }
 
-var createflag = function(){
+var createflag = function(flagArray){
 	var checker = false;
-	if(flags.length != 0){
-		for(var m = 0; m<flags.length; m++){
-			if(m==0)
-				checker = flags[0];
-			else
-				checker = checker && flags[m];
+	if(flagArray.length != 0){
+		for(var m = 0; m<flagArray.length; m++){
+			if(m==0){
+				checker = flagArray[0];
+				console.log("checker "+checker);
+			}
+			else{
+				checker = checker && flagArray[m];
+				console.log("checker "+checker);
+			}
 		}
 	}
 	return checker;
@@ -137,7 +145,7 @@ function renameMethod(node,num,ast){
 	var pastMethodName, newMethodName;
 	if(node.id.type == 'Identifier'){
 		pastMethodName = node.id.name;
-		newMethodName = "RenameMethod"+ num;
+		newMethodName = "renameMethod"+ num;
 		/* if(poorReadable.indexOf(pastMethodName) == -1){
 			newMethodName = "RenameMethod_"+ num;	
 		}
@@ -145,7 +153,7 @@ function renameMethod(node,num,ast){
 			newMethodName = pastMethodName + num;
 		} */
 		node.id.name = newMethodName;
-		//console.log(pastMethodName +' rename as ' + node.id.name);
+		console.log(pastMethodName +' rename as ' + node.id.name);
 		renameCallee(pastMethodName,newMethodName,ast);
 	}
 }

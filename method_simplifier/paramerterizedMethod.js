@@ -128,7 +128,7 @@ var remove = function(value){
 var methodParameterizer = function(ast,comparatorName, comparisonName){
 	var comparatorNode = getNode(ast, comparatorName);
 	var comparisonNode = getNode(ast, comparisonName); 
-	var newName = "parameterizeMethod_" + n++;
+	var newName = "parameterizeMethod" + n++;
 	var comparisontype = comparisonNode.type;
 	
 	/*console.log(JSON.stringify(comparatorNode,null, 4));
