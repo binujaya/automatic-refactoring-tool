@@ -70,7 +70,6 @@ var checkedName = function(nodeObject,methodName){
 	}	
 
 	var flag = createflag(flags);
-	console.log("final "+flag);
 	return flag;
 }
 
@@ -118,7 +117,7 @@ var checkUnderscore = function(name){
 var isMeaningful = function(word){
 	var is_spelled_correctly = false;
 	is_spelled_correctly = dictionary.check(word);
-	console.log("Is correct word? "+ is_spelled_correctly);
+	//console.log("Is correct word? "+ is_spelled_correctly);
 	return is_spelled_correctly;
 }
 
@@ -128,11 +127,9 @@ var createflag = function(flagArray){
 		for(var m = 0; m<flagArray.length; m++){
 			if(m==0){
 				checker = flagArray[0];
-				console.log("checker "+checker);
 			}
 			else{
 				checker = checker && flagArray[m];
-				console.log("checker "+checker);
 			}
 		}
 	}
