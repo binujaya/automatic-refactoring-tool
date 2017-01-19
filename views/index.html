@@ -195,6 +195,10 @@
 			location.reload();
 		}
 
+		function destroyClickedElement(event){
+			document.body.removeChild(event.target);
+		}
+
 	</script>
 
 </head>
@@ -214,7 +218,7 @@
                 </button>
                 <a class="navbar-brand" href="#">Home</a>
             </div>
-            
+
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li>
@@ -232,8 +236,8 @@
 
         <!-- Page Header -->
         <div class="row">
-            <div class="col-lg-12">
-                <h1 class="page-header">Automated Refactoring Tool
+            <div class="col-md-12">
+                <h1 class="page-header">Refactoring Automation Tool
                 </h1>
             </div>
         </div>
@@ -241,7 +245,7 @@
 
 		<!-- Input -->
         <div class="row">
-            <div class="col-lg-6 portfolio-item">
+            <div class="col-md-6 portfolio-item">
                 <div id="alert">
 					<p id="content"></p>
 					<p id="fileName"></p>
@@ -251,7 +255,7 @@
 					<input type="file" id="fileinput"  class="btn btn-primary"/>
 				</div>
             </div>
-			<div class="col-lg-6 portfolio-item">
+			<div class="col-md-6 portfolio-item">
 				<div id="refactAlert">
 					<p id="msgContent"></p>
 				</div>
@@ -269,6 +273,7 @@
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RSNF">Rename Short Names Function</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPNF">Rename Poor Names Function</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Parameterize Methods</label></li>
+
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPMC">Replace Parameter with method call</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Remove Parameter</label></li>
 
@@ -308,20 +313,20 @@
 
         <!-- Projects Row -->
         <div class="row">
-            <div class="col-lg-6 portfolio-item">
+            <div class="col-md-6 portfolio-item">
                  <h3>
                     <a href="#">Input Code</a>
                  </h3>
                 <a href="#">
-                   <textarea name="comment" id="inputCode" rows="40" cols="78" readonly></textarea>
+                   <textarea name="comment" id="inputCode" rows="40" cols="70" readonly></textarea>
                 </a>
             </div>
-            <div class="col-lg-6 portfolio-item">
+            <div class="col-md-6 portfolio-item">
                  <h3>
                     <a href="#">Refactored Code</a>
                  </h3>
                 <a href="#">
-                   <textarea name="comment" id="refactoredCode" rows="40" cols="78" ></textarea>
+                   <textarea name="comment" id="refactoredCode" rows="40" cols="70" ></textarea>
                 </a>
             </div>
         </div>
@@ -332,7 +337,9 @@
         <!-- Footer -->
         <footer>
             <div class="row">
-                <div class="col-lg-12">
+
+                <div class="col-md-12">
+
                 </div>
             </div>
             <!-- /.row -->

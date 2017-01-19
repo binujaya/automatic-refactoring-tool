@@ -63,9 +63,9 @@ var checkedName = function(nodeObject,methodName){
 	else if(upperCaseIndexs.length == 0 && underscoreindexs.length == 0){
 		var check = isMeaningful(name);
 		flags.push(check);
-		if(!check){
+		/* if(!check){
 			poorReadable.push(name);
-		}
+		} */
 	}	
 
 	var flag = createflag();
@@ -137,12 +137,13 @@ function renameMethod(node,num,ast){
 	var pastMethodName, newMethodName;
 	if(node.id.type == 'Identifier'){
 		pastMethodName = node.id.name;
-		if(poorReadable.indexOf(pastMethodName) == -1){
+		newMethodName = "RenameMethod"+ num;
+		/* if(poorReadable.indexOf(pastMethodName) == -1){
 			newMethodName = "RenameMethod_"+ num;	
 		}
 		else{
-			newMethodName = pastMethodName + "_PR";
-		}
+			newMethodName = pastMethodName + num;
+		} */
 		node.id.name = newMethodName;
 		//console.log(pastMethodName +' rename as ' + node.id.name);
 		renameCallee(pastMethodName,newMethodName,ast);
