@@ -125,6 +125,7 @@ var addInlineMethods = function (ast) {
     enter: function (node, parent) {
       scopeTracker.push(node);
       if (node.type=='FunctionExpression' && node.body.body.length==1) {
+        console.log(node.body);
         var methodBody = node.body.body[0].argument;
         var methodName = parent.id.name;
         replaceCalleeWithMethodBody(ast, methodName, methodBody);

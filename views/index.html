@@ -42,7 +42,7 @@
 							$("#content").text("");
 							inputName = selectedFile.name;
 							$("#fileName").text("File Name: "+inputName);
-							$("#fileSize").text("File Size: "+selectedFile.size +" byte");
+							$("#fileSize").text("File Size: "+selectedFile.size +" bytes");
 							$("#inputCode").text("");
 							$("#refactoredCode").text("");
 							readFile(selectedFile);
@@ -60,7 +60,7 @@
 						$("#inputCode").text("");
 						$("#refactoredCode").text("");
 						$("#alert").attr("class", "alert alert-warning");
-						$("#content").text("Wrong file. Plese upload your JavaScript file.");
+						$("#content").text("Wrong file. Please upload your JavaScript file.");
 						$("#fileName").text("");
 						$("#fileSize").text("");
 					}
@@ -69,7 +69,7 @@
 					$("#inputCode").text("");
 					$("#refactoredCode").text("");
 					$("#alert").attr("class", "alert alert-warning");
-					$("#content").text("Plese upload your JavaScript file.");
+					$("#content").text("Please upload your JavaScript file.");
 					$("#fileName").text("");
 					$("#fileSize").text("");
 				}
@@ -115,7 +115,7 @@
 			reader.onload = function(progressEvent){
 				var lines = this.result.split('\n');
 				for(var line = 0; line < lines.length; line++){
-					$("#inputCode").append(lines[line]+'<br/>');
+					$("#inputCode").append(lines[line]+ '&#xA;');
 				}
 			};
 			reader.readAsText(file);
@@ -205,7 +205,7 @@
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
+            <!-- <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
@@ -214,14 +214,14 @@
                 </button>
                 <a class="navbar-brand" href="#">Home</a>
             </div>
-            <!-- Collect the nav links, forms, and other content for toggling -->
+            
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li>
                         <a href="#">Wiki</a>
                     </li>
                 </ul>
-            </div>
+            </div> -->
             <!-- /.navbar-collapse -->
         </div>
         <!-- /.container -->
@@ -233,7 +233,7 @@
         <!-- Page Header -->
         <div class="row">
             <div class="col-lg-12">
-                <h1 class="page-header">Refactoring Automation Tool
+                <h1 class="page-header">Automated Refactoring Tool
                 </h1>
             </div>
         </div>
@@ -269,8 +269,8 @@
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RSNF">Rename Short Names Function</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPNF">Rename Poor Names Function</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Parameterize Methods</label></li>
-						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPMC">Replace Paramter with method call</label></li>
-						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Remove Paramter</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPMC">Replace Parameter with method call</label></li>
+						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Remove Parameter</label></li>
 
 					</ul>
 				</div>
@@ -333,7 +333,6 @@
         <footer>
             <div class="row">
                 <div class="col-lg-12">
-                    <p>Copyright &copy; MASS</p>
                 </div>
             </div>
             <!-- /.row -->

@@ -1,5 +1,6 @@
 var esprima = require('esprima');
 var escodegen = require('escodegen');
+const fs = require('fs');
 
 var depthCalculator = require('./method_composer/depthCalculator.js');
 var MethodComposer = require('./method_composer/refactoringEngine.js');
@@ -15,6 +16,13 @@ var renamePoorNames = require('./method_simplifier/renamePoorName.js');
 var start = function (inputCode,options) {
   var refactoredCode, ast;
   ast = esprima.parse(inputCode);
+
+  fs.writeFile('./files/astinitial.js', JSON.stringify(ast, null, 4), function (err) {
+    if (err) {
+      throw err;
+    }
+  });
+
   depthCalculator.addDepthToNodes(ast);
   console.log('at refac manager',options);
   if (options[2]!='') {console.log('MethodComposer.removeAssignToParam'); MethodComposer.removeAssignToParam(ast);}
@@ -27,9 +35,9 @@ var start = function (inputCode,options) {
   if (options[5]!='') {console.log('ConReplaceNested.replaceNestedConditionals'); ConReplaceNested.replaceNestedConditionals(ast);}
   if (options[9]!='') {console.log('parameterizeMethod.searchParameterizeMethods'); parameterizeMethod.searchParameterizeMethods(ast);}
   if (options[9]!='') {console.log('parameterizeMethod.matchDuplicatemethods'); parameterizeMethod.matchDuplicatemethods(ast);}
-  if (options) {console.log('removeParameters.searchRemoveParameter'); removeParameters.searchRemoveParameter(ast);}
-  if (options[7]!='') {console.log('renameShortNames.searchMethodsName'); renameShortNames.searchMethodsName(ast);}
+  if (options[10]!='') {console.log('removeParameters.searchRemoveParameter'); removeParameters.searchRemoveParameter(ast);}
   if (options[8]!='') {console.log('renamePoorNames.searchMethodsName'); renamePoorNames.searchMethodsName(ast);}
+  if (options[7]!='') {console.log('renameShortNames.searchMethodsName'); renameShortNames.searchMethodsName(ast);}
 
   refactoredCode = escodegen.generate(ast);
   return {
