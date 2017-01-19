@@ -143,10 +143,10 @@ var createSeparateIf = function (node, name) {
             var argument = JSON.stringify(node.consequent.body[position].expression.right);
             if (copyOfBody.length > 1) {
                 var newReturnNode = JSON.parse(`{
-             
+
                  "type": "ReturnStatement",
                  "argument": ${argument}
-             
+
 
             }`);
                 var newArray = copyOfBody;
@@ -233,7 +233,7 @@ var replaceMain = function () {
 
     });
 };
-replaceMain();
+//replaceMain();
 module.exports = {
     foundIfInArray: foundIfInArray,
     replaceHelper: replaceHelper,
