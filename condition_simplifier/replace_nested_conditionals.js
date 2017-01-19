@@ -21,10 +21,10 @@ var foundIfInArray = function (array) {
     return false;
 };
 //function to traverse nested if and compute the new node array
-var replaceHelper = function (node) {
+var replaceHelper = function (node, name) {
     var newNodes = [];
     while (node !== undefined) {
-        newNodes.push(createSeparateIf(node));
+        newNodes.push(createSeparateIf(node, name));
         var position;
         if (node.alternate !== undefined) position = findNodeIndex("IfStatement", node.alternate.body);
         if (position !== undefined) node = node.alternate.body[position];
@@ -33,9 +33,11 @@ var replaceHelper = function (node) {
     return newNodes;
 };
 
-var findNodeIndex = function (statement, array) {
+var findNodeIndex = function (statement, array, name) {
     for (var i = 0; i < array.length; i++) {
-        if (array[i].type === statement) {
+        if (array[i].type === "ExpressionStatement" && checkVarExists(name) && array[i].expression.left.name === name) {
+            return i;
+        } else if (array[i].type === statement) {
             return i;
         }
 
@@ -44,9 +46,20 @@ var findNodeIndex = function (statement, array) {
 
 };
 
+var checkVarExists = function (variable) {
+    if (variable !== undefined && variable !== null) {
+        return true;
+
+    }
+    return false;
+
+
+
+
+};
 var checkForNestedIf = function (node) {
     if (node.alternate !== null && node.alternate !== undefined) {
-        if (foundIfInArray(node.alternate.body)) {
+        if (foundIfInArray(node.alternate.body)) { //added validation
             return true;
         }
     }
@@ -54,7 +67,7 @@ var checkForNestedIf = function (node) {
 }
 
 var isInsideFunction = function () {
-    if (scopeChain.getGrandParentNode() !== undefined && (scopeChain.getGrandParentNode().type === "FunctionExpression"||scopeChain.getGrandParentNode().type ==="FunctionDeclaration")) {
+    if (scopeChain.getGrandParentNode() !== undefined && (scopeChain.getGrandParentNode().type === "FunctionExpression" || scopeChain.getGrandParentNode().type === "FunctionDeclaration")) {
         return true;
     }
     return false;
@@ -63,14 +76,21 @@ var isInsideFunction = function () {
 }
 
 var replaceNestedConditionals = function (ast) {
+    var variableName;
     estraverse.traverse(ast, {
+
         enter: function enter(node, parent) {
             var nodes;
 
+
             scopeChain.push(node);
+            if ((node.type === "VariableDeclarator") && (node.id.type === "Identifier")) {
+                variableName = node.id.name;
+
+            }
 
             if (node.type === "IfStatement" && checkForNestedIf(node) && (isInsideFunction())) {
-                nodes = replaceHelper(node);
+                nodes = replaceHelper(node, variableName);
                 var index = findIndexOfArray(parent.body, node);
                 parent.body.splice(index, 2); //remove current node assumption next node is return statement
                 for (var k = 0; k < nodes.length; k++) {
@@ -113,13 +133,41 @@ var findIndexOfArray = function (array, node) {
     return array.indexOf(node);
 };
 
-var createSeparateIf = function (node) {
+var createSeparateIf = function (node, name) {
     if (node.type === "IfStatement") {
-        var position = findNodeIndex("ExpressionStatement", node.consequent.body);
+
+        var position = findNodeIndex("ExpressionStatement", node.consequent.body, name);
+        var copyOfBody = node.consequent.body.slice();
         if (node.test !== undefined && node.consequent.body[position].expression !== undefined) {
             var test = JSON.stringify(node.test);
             var argument = JSON.stringify(node.consequent.body[position].expression.right);
-            return JSON.parse(`{
+            if (copyOfBody.length > 1) {
+                var newReturnNode = JSON.parse(`{
+             
+                 "type": "ReturnStatement",
+                 "argument": ${argument}
+             
+
+            }`);
+                var newArray = copyOfBody;
+                var newBody = JSON.stringify(newArray);
+
+                return JSON.parse(`{
+     "type": "IfStatement",
+     "test": ${test},
+     "consequent": {
+         "type": "BlockStatement",
+         "body": ${newBody}
+     },
+     "alternate": null
+ }`);
+
+
+
+
+            } else {
+
+                return JSON.parse(`{
      "type": "IfStatement",
      "test": ${test},
      "consequent": {
@@ -133,10 +181,10 @@ var createSeparateIf = function (node) {
      },
      "alternate": null
  }`);
+            }
         }
     } else if (node.type === "BlockStatement") {
-
-        var position = findNodeIndex("ExpressionStatement", node.body);
+        var position = findNodeIndex("ExpressionStatement", node.body, name);
 
         if (node.body[position].expression !== undefined) {
             var argument = JSON.stringify(node.body[position].expression.right);
@@ -185,15 +233,15 @@ var replaceMain = function () {
 
     });
 };
-//replaceMain();
+replaceMain();
 module.exports = {
     foundIfInArray: foundIfInArray,
     replaceHelper: replaceHelper,
     findNodeIndex: findNodeIndex,
     checkForNestedIf: checkForNestedIf,
     isInsideFunction: isInsideFunction,
-    replaceNestedConditionals:replaceNestedConditionals,
-    removeNode:removeNode,
-    findIndexOfArray:findIndexOfArray,
-    createSeparateIf:createSeparateIf 
+    replaceNestedConditionals: replaceNestedConditionals,
+    removeNode: removeNode,
+    findIndexOfArray: findIndexOfArray,
+    createSeparateIf: createSeparateIf
 };

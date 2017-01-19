@@ -1,6 +1,7 @@
 var getPayAmount = function () {
     if (isDead) {
-        return deadAmount();
+        var k;
+        result = deadAmount();
     }
     if (isSeparated) {
         return separatedAmount();
@@ -13,13 +14,17 @@ var getPayAmount = function () {
 function getGrade(marks) {
     var result;
     if (marks >= 75) {
-        return 'A';
+        var a;
+        var k;
+        result = 'A';
     }
     if (marks >= 65) {
-        return 'B';
+        var b;
+        result = 'B';
     }
     if (marks >= 50) {
-        return 'C';
+        var c;
+        result = 'C';
     }
     return 'F';
 }
