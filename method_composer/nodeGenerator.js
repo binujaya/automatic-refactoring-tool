@@ -1,13 +1,12 @@
 var nameGenerator = {
   count: 0,
-  genericName: function(refactoring) {
+  genericName: function() {
     this.count++;
     return 'VAR_' + this.count;
   }
 };
 
 var varGenerator = {
-  // NOTE: declareVar is not used
   declareVar: function(varName) {
     return JSON.parse(`{
         "type": "VariableDeclaration",
