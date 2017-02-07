@@ -115,7 +115,7 @@
 			reader.onload = function(progressEvent){
 				var lines = this.result.split('\n');
 				for(var line = 0; line < lines.length; line++){
-					//$("#inputCode").append(lines[line]+ '&#xA;');
+					// $("#inputCode").append(lines[line]+ '&#xA;');
           $("#inputCode").append(lines[line]+ '<br/>');
 				}
 			};
@@ -276,7 +276,7 @@
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="PM">Parameterize Methods</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RM">Remove Parameter</label></li>
 						<li style="padding-left: 10px;"><label><input type="checkbox" name="methods" value="RPMC">Replace Parameter with method call</label></li>
-			
+
 
 					</ul>
 				</div>
