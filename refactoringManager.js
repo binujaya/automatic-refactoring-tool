@@ -37,7 +37,7 @@ var start = function (inputCode,options) {
   if (options[9]!='') {console.log('parameterizeMethod.searchParameterizeMethods'); parameterizeMethod.searchParameterizeMethods(ast);}
   if (options[9]!='') {console.log('parameterizeMethod.matchDuplicatemethods'); parameterizeMethod.matchDuplicatemethods(ast);}
   if (options[10]!='') {console.log('removeParameters.searchRemoveParameter'); removeParameters.searchRemoveParameter(ast);}
-  if (options[11]!='') {console.log('replaceParameterWithMethodCall.searchMethodsName'); replaceParameterWithMethodCall.refacController(ast);}
+  // if (options[11]!='') {console.log('replaceParameterWithMethodCall.searchMethodsName'); replaceParameterWithMethodCall.refacController(ast);}
   if (options[8]!='') {console.log('renamePoorNames.searchMethodsName'); renamePoorNames.searchMethodsName(ast);}
   if (options[7]!='') {console.log('renameShortNames.searchMethodsName'); renameShortNames.searchMethodsName(ast);}
 
